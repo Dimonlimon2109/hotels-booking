@@ -1,0 +1,22 @@
+## ASP.NET Core
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.dbmdl
+*.log
+.env
+node_modules/
+
+# Rider
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# OS-specific
+.DS_Store
+Thumbs.db
