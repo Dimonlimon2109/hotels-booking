@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace HotelsBooking.DAL.Constants
 {
-    internal class UserRole
+    public enum UserRole
     {
+        Admin,
+        HotelOwner,
+        Guest
     }
 }

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HotelsBooking.DAL.Data;
+using HotelsBooking.DAL.Entities;
+using HotelsBooking.DAL.Interfaces;
 
 namespace HotelsBooking.DAL.Repositories
 {
-    internal class UserRepository
+    public class UserRepository : Repository<User>, IUserRepository
     {
+        public UserRepository(ApplicationContext context) : base(context) { }
     }
 }
