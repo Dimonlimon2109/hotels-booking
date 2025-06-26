@@ -12,6 +12,7 @@ namespace HotelsBooking.BLL.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IValidator<RegisterDTO> _registeringUserValidator;
+        private readonly IValidator<LoginDTO> _loginingUserValidator;
         private readonly TokensService _tokensService;
         private readonly PasswordService _passwordService;
 
@@ -19,6 +20,7 @@ namespace HotelsBooking.BLL.Services
             IUserRepository userRepository,
             IMapper mapper,
             IValidator<RegisterDTO> registeringUserValidator,
+            IValidator<LoginDTO> loginingUserValidator,
             TokensService tokensService,
             PasswordService passwordService
             )
@@ -26,6 +28,7 @@ namespace HotelsBooking.BLL.Services
             _userRepository = userRepository;
             _mapper = mapper;
             _registeringUserValidator = registeringUserValidator;
+            _loginingUserValidator = loginingUserValidator;
             _tokensService = tokensService;
             _passwordService = passwordService;
         }
@@ -40,6 +43,34 @@ namespace HotelsBooking.BLL.Services
 
             var user = _mapper.Map<User>(registeringUser);
             await _userRepository.AddAsync(user);
+        }
+
+        public async Task<TokensDTO> LoginAsync(LoginDTO loginingInUser, CancellationToken ct = default)
+        {
+            var validationResult = await _loginingUserValidator.ValidateAsync(loginingInUser, ct);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var user = await _userRepository.GetByEmailAsync(loginingInUser.Email);
+            if (user == null)
+            {
+                throw new NullReferenceException("Пользователь не найден");
+            }
+
+            if (!_passwordService.ValidatePassword(loginingInUser.Password, user.PasswordHash))
+            {
+                throw new InvalidOperationException("Неверный пароль");
+            }
+
+            var refreshToken = _tokensService.GenerateRefreshToken();
+            user.RefreshToken = refreshToken.RefreshToken;
+            user.RefreshTokenExpiresAt = refreshToken.ExpiresAt;
+            await _userRepository.UpdateAsync(user);
+
+            var accessToken = _tokensService.GenerateAccessToken(user);
+            return new TokensDTO(accessToken, refreshToken.RefreshToken);
         }
     }
 }

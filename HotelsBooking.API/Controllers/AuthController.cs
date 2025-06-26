@@ -28,5 +28,14 @@ namespace HotelsBooking.API.Controllers
             await _authService.RegisterAsync(registerDTO);
             return Ok(HttpMessages.SuccessRegistering);
         }
+
+        [HttpPost("login")]
+
+        public async Task<IActionResult> Login(LoginModel loginingInUser, CancellationToken ct)
+        {
+            var loginDTO = _mapper.Map<LoginDTO>(loginingInUser);
+            var tokens = await _authService.LoginAsync(loginDTO);
+            return Ok(tokens);
+        }
     }
 }

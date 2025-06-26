@@ -38,6 +38,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 //builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<IValidator<RegisterDTO>, RegisterDTOValidator>();
+builder.Services.AddScoped<IValidator<LoginDTO>, LoginDTOValidator>();
 
 builder.Services.AddAuthentication(options =>
 {
