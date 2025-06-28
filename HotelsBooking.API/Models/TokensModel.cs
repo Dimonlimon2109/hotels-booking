@@ -1,6 +1,8 @@
 ﻿namespace HotelsBooking.API.Models
 {
-    public class TokensModel
-    {
-    }
+    public record TokensModel
+        (
+        string AccessToken,
+        string RefreshToken
+        );
 }

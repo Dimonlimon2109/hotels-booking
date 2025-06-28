@@ -37,5 +37,13 @@ namespace HotelsBooking.API.Controllers
             var tokens = await _authService.LoginAsync(loginDTO);
             return Ok(tokens);
         }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh(TokensModel tokens, CancellationToken ct)
+        {
+            var tokensDTO = _mapper.Map<TokensDTO>(tokens);
+            var responseTokens = await _authService.RefreshAsync(tokensDTO);
+            return Ok(responseTokens);
+        }
     }
 }

@@ -30,7 +30,7 @@ namespace HotelsBooking.BLL.Services
                 Subject = new ClaimsIdentity(
                    [
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Role, user.Role.ToString())
                     ]),
                 Expires = DateTime.UtcNow.Add(_tokenLifetime),

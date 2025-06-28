@@ -1,4 +1,6 @@
 using FluentValidation;
+using HotelsBooking.API.Constants;
+using HotelsBooking.API.Options;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.BLL.Services;
 using HotelsBooking.BLL.Validators;
@@ -40,6 +42,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IValidator<RegisterDTO>, RegisterDTOValidator>();
 builder.Services.AddScoped<IValidator<LoginDTO>, LoginDTOValidator>();
 
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JWT"));
+var jwtOptions = builder.Configuration.GetSection("JWT").Get<JwtOptions>();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -53,16 +58,16 @@ builder.Services.AddAuthentication(options =>
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["JWT:Issuer"],
-            ValidAudience = builder.Configuration["JWT:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+            ValidIssuer = jwtOptions.Issuer,
+            ValidAudience = jwtOptions.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
         };
     });
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"))
-    .AddPolicy("HotelOwnerPolicy", policy => policy.RequireRole("HotelOwner"))
-    .AddPolicy("ClientPolicy", policy => policy.RequireRole("CLient"));
+    .AddPolicy(Policies.Admin, policy => policy.RequireRole(Roles.Admin))
+    .AddPolicy(Policies.HotelOwner, policy => policy.RequireRole(Roles.HotelOwner))
+    .AddPolicy(Policies.Client, policy => policy.RequireRole(Roles.Client));
 
 var app = builder.Build();
 

@@ -4,6 +4,8 @@ using FluentValidation;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace HotelsBooking.BLL.Services
 {
@@ -70,7 +72,38 @@ namespace HotelsBooking.BLL.Services
             await _userRepository.UpdateAsync(user);
 
             var accessToken = _tokensService.GenerateAccessToken(user);
-            return new TokensDTO(accessToken, refreshToken.RefreshToken);
+            return new TokensDTO { AccessToken = accessToken, RefreshToken = refreshToken.RefreshToken};
+        }
+
+        public async Task<TokensDTO> RefreshAsync(TokensDTO tokens, CancellationToken ct = default)
+        {
+            var claims = _tokensService.GetPrincipalFromToken(tokens.AccessToken);
+            var email = claims.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+            if (email == null)
+            {
+                throw new SecurityTokenException("Неверный access-token");
+            }
+            var user = await _userRepository.GetByEmailAsync(email, ct);
+
+            if (user == null)
+            {
+                throw new NullReferenceException("Пользователь не найден");
+            }
+
+            if (user.RefreshToken != tokens.RefreshToken || user.RefreshTokenExpiresAt < DateTime.UtcNow)
+            {
+                throw new SecurityTokenException("Неверный refresh-token");
+            }
+
+            var refreshToken = _tokensService.GenerateRefreshToken();
+            user.RefreshToken = refreshToken.RefreshToken;
+            user.RefreshTokenExpiresAt = refreshToken.ExpiresAt;
+
+            await _userRepository.UpdateAsync(user, ct);
+
+            var accessToken = _tokensService.GenerateAccessToken(user);
+            return new TokensDTO { AccessToken = accessToken, RefreshToken = refreshToken.RefreshToken };
         }
     }
 }
