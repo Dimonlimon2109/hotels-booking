@@ -31,6 +31,7 @@ builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddMaps(typeof(Program).Assembly);
     cfg.AddMaps(typeof(AuthService).Assembly);
+    cfg.AddMaps(typeof(HotelService).Assembly);
 });
 
 builder.Services.AddScoped<AuthService>();
@@ -38,10 +39,12 @@ builder.Services.AddScoped<TokensService>();
 builder.Services.AddScoped<PasswordService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IHotelRepository, HotelRepository>();
 
 //builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<IValidator<RegisterDTO>, RegisterDTOValidator>();
 builder.Services.AddScoped<IValidator<LoginDTO>, LoginDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateHotelDTO>, CreateHotelDTOValidator>();
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JWT"));
 var jwtOptions = builder.Configuration.GetSection("JWT").Get<JwtOptions>();

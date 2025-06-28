@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using HotelsBooking.DAL.Entities;
 
 namespace HotelsBooking.DAL.Interfaces
 {
-    internal class IHotelRepository
+    public interface IHotelRepository : IRepository<Hotel>
     {
     }
 }

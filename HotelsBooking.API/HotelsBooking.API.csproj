@@ -21,10 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModels\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\HotelsBooking.BLL\HotelsBooking.BLL.csproj" />
   </ItemGroup>
 
