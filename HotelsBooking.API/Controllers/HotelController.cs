@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using HotelsBooking.API.Constants;
 using HotelsBooking.API.Models;
 using HotelsBooking.API.ViewModels;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.BLL.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -49,6 +51,7 @@ namespace HotelsBooking.API.Controllers
             return Ok(_mapper.Map<HotelViewModel>(hotelDTO));
         }
 
+        [Authorize(Policy = Policies.HotelOwner)]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteHotel(int id, CancellationToken ct)
         {
