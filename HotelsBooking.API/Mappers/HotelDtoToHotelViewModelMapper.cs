@@ -6,7 +6,7 @@ namespace HotelsBooking.API.Mappers
 {
     public class HotelDtoToHotelViewModelMapper: Profile
     {
-        HotelDtoToHotelViewModelMapper()
+        public HotelDtoToHotelViewModelMapper()
         {
             CreateMap<HotelDTO, HotelViewModel>();
         }

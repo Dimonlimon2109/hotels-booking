@@ -24,7 +24,7 @@ namespace HotelsBooking.DAL.Repositories
             return await _dbSet.ToListAsync(ct);
         }
 
-        public async Task<T?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        public async Task<T?> GetByIdAsync(int id, CancellationToken ct = default)
         {
             return await _dbSet.FindAsync(id, ct);
         }
@@ -41,7 +41,7 @@ namespace HotelsBooking.DAL.Repositories
             await _context.SaveChangesAsync(ct);
         }
 
-        public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+        public async Task DeleteAsync(int id, CancellationToken ct = default)
         {
             var entity = await _dbSet.FindAsync(id, ct);
             if (entity != null)

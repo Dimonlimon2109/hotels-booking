@@ -37,6 +37,7 @@ builder.Services.AddAutoMapper(cfg =>
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<TokensService>();
 builder.Services.AddScoped<PasswordService>();
+builder.Services.AddScoped<HotelService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IHotelRepository, HotelRepository>();
