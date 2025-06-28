@@ -1,5 +1,6 @@
 using FluentValidation;
 using HotelsBooking.API.Constants;
+using HotelsBooking.API.Middlewares;
 using HotelsBooking.API.Options;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.BLL.Services;
@@ -70,6 +71,8 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy(Policies.Client, policy => policy.RequireRole(Roles.Client));
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
