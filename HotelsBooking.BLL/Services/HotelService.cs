@@ -49,5 +49,10 @@ namespace HotelsBooking.BLL.Services
             var hotel = await _hotelRepository.GetByIdAsync(id, ct);
             return _mapper.Map<HotelDTO>(hotel);
         }
+
+        public async Task DeleteHotelAsync(int id, CancellationToken ct = default)
+        {
+            await _hotelRepository.DeleteAsync(id, ct);
+        }
     }
 }

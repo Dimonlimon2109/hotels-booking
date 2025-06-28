@@ -48,5 +48,12 @@ namespace HotelsBooking.API.Controllers
 
             return Ok(_mapper.Map<HotelViewModel>(hotelDTO));
         }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteHotel(int id, CancellationToken ct)
+        {
+            await _hotelService.DeleteHotelAsync(id, ct);
+            return NoContent();
+        }
     }
 }
