@@ -26,6 +26,7 @@ namespace HotelsBooking.API.Controllers
             _mapper = mapper;
         }
 
+        [Authorize(Policy = Policies.HotelOwner)]
         [HttpPost]
         public async Task<IActionResult> CreateHotel(CreateHotelModel creatingHotel, CancellationToken ct = default)
         {
