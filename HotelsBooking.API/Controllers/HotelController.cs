@@ -59,5 +59,15 @@ namespace HotelsBooking.API.Controllers
             await _hotelService.DeleteHotelAsync(id, ct);
             return NoContent();
         }
+
+        [Authorize(Policy = Policies.HotelOwner)]
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateHotel(int id, UpdateHotelModel updatingHotel, CancellationToken ct)
+        {
+            var updatingHotelDTO = _mapper.Map<UpdateHotelDTO>(updatingHotel);
+            await _hotelService.UpdateHotelAsync(id, updatingHotelDTO, ct);
+
+            return Ok();
+        }
     }
 }

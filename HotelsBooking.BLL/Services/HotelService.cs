@@ -12,16 +12,20 @@ namespace HotelsBooking.BLL.Services
         private readonly IHotelRepository _hotelRepository;
         private readonly IMapper _mapper;
         private readonly IValidator<CreateHotelDTO> _creatingHotelValidator;
+        private readonly IValidator<UpdateHotelDTO> _updatingHotelValidator;
+
 
         public HotelService(
             IHotelRepository hotelRepository,
             IMapper mapper,
-            IValidator<CreateHotelDTO> creatingHotelValidator
+            IValidator<CreateHotelDTO> creatingHotelValidator,
+            IValidator<UpdateHotelDTO> updatingHotelValidator
             )
         {
             _hotelRepository = hotelRepository;
             _mapper = mapper;
             _creatingHotelValidator = creatingHotelValidator;
+            _updatingHotelValidator = updatingHotelValidator;
         }
 
         public async Task<HotelDTO> CreateHotelAsync(CreateHotelDTO creatingHotel, CancellationToken ct = default)
@@ -53,6 +57,25 @@ namespace HotelsBooking.BLL.Services
         public async Task DeleteHotelAsync(int id, CancellationToken ct = default)
         {
             await _hotelRepository.DeleteAsync(id, ct);
+        }
+
+        public async Task UpdateHotelAsync(int id, UpdateHotelDTO updatingHotel,  CancellationToken ct = default)
+        {
+            var hotelItem = await _hotelRepository.GetByIdAsync(id, ct)
+                ?? throw new NullReferenceException("Отель не найден");
+
+            var validationResult = _updatingHotelValidator.Validate(updatingHotel);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            hotelItem.Name = updatingHotel.Name;
+            hotelItem.Address = updatingHotel.Address;
+            hotelItem.Latitude = updatingHotel.Latitude;
+            hotelItem.Longitude = updatingHotel.Longitude;
+            hotelItem.Description = updatingHotel.Description;
+            await _hotelRepository.UpdateAsync(hotelItem);
         }
     }
 }
