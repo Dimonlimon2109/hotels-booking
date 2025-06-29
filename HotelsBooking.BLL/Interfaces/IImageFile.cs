@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace HotelsBooking.BLL.Interfaces
 {
-    internal class IImageFile
+    public interface IImageFile
     {
+        string FileName {  get; }
+        string ContentType { get; }
+        long Length { get; }
+        Task CopyToAsync(FileStream target, CancellationToken ct = default);
     }
 }
