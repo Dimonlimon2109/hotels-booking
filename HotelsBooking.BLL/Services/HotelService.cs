@@ -4,6 +4,7 @@ using FluentValidation;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
+using Microsoft.IdentityModel.Tokens.Experimental;
 using System.Security;
 
 namespace HotelsBooking.BLL.Services
@@ -43,11 +44,11 @@ namespace HotelsBooking.BLL.Services
             var user = await _userRepository.GetByEmailAsync(userEmail);
             if (user == null)
             {
-                throw new SecurityException("Пользователь не аутентифицирован");
+                throw new SecurityException("Пользователь не найден");
             }
 
             var hotel = _mapper.Map<Hotel>(creatingHotel);
-            hotel.Owner = user;
+            hotel.OwnerId = user.Id;
             await _hotelRepository.AddAsync(hotel, ct);
             return _mapper.Map<HotelDTO>(hotel);
         }
@@ -64,20 +65,40 @@ namespace HotelsBooking.BLL.Services
             return _mapper.Map<HotelDTO>(hotel);
         }
 
-        public async Task DeleteHotelAsync(int id, CancellationToken ct = default)
+        public async Task<IEnumerable<HotelDTO>> GetMyHotelsAsync(string userEmail, CancellationToken ct = default)
         {
+            var user = await _userRepository.GetByEmailAsync(userEmail, ct)
+                ?? throw new SecurityException("Пользователь не найден");
+            var userHotels = await _hotelRepository.GetOwnerHotelsAsync(user.Id, ct);
+            return userHotels?.Select(h => _mapper.Map<HotelDTO>(h)) ?? new List<HotelDTO>();
+        }
+
+        public async Task DeleteHotelAsync(int id, string userEmail, CancellationToken ct = default)
+        {
+            var user = await _userRepository.GetByEmailAsync(userEmail, ct);
+            var deletingHotel = await _hotelRepository.GetHotelByIdWithOwnerAsync(id, ct);
+            if(user?.Id != deletingHotel?.OwnerId)
+            {
+                throw new SecurityException("Отель может удалить только владелец");
+            }
             await _hotelRepository.DeleteAsync(id, ct);
         }
 
-        public async Task UpdateHotelAsync(int id, UpdateHotelDTO updatingHotel,  CancellationToken ct = default)
+        public async Task UpdateHotelAsync(int id, string userEmail, UpdateHotelDTO updatingHotel,  CancellationToken ct = default)
         {
-            var hotelItem = await _hotelRepository.GetByIdAsync(id, ct)
+            var hotelItem = await _hotelRepository.GetHotelByIdWithOwnerAsync(id, ct)
                 ?? throw new NullReferenceException("Отель не найден");
 
             var validationResult = _updatingHotelValidator.Validate(updatingHotel);
             if (!validationResult.IsValid)
             {
                 throw new ValidationException(validationResult.Errors);
+            }
+
+            var user = await _userRepository.GetByEmailAsync(userEmail, ct);
+            if(hotelItem.OwnerId != user?.Id)
+            {
+                throw new SecurityException("Информацию об отеле может изменить только владелец");
             }
 
             hotelItem.Name = updatingHotel.Name;

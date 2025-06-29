@@ -58,7 +58,8 @@ namespace HotelsBooking.API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteHotel(int id, CancellationToken ct)
         {
-            await _hotelService.DeleteHotelAsync(id, ct);
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            await _hotelService.DeleteHotelAsync(id, userEmail, ct);
             return NoContent();
         }
 
@@ -66,10 +67,20 @@ namespace HotelsBooking.API.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateHotel(int id, UpdateHotelModel updatingHotel, CancellationToken ct)
         {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
             var updatingHotelDTO = _mapper.Map<UpdateHotelDTO>(updatingHotel);
-            await _hotelService.UpdateHotelAsync(id, updatingHotelDTO, ct);
+            await _hotelService.UpdateHotelAsync(id, userEmail, updatingHotelDTO, ct);
 
             return Ok();
+        }
+
+        [Authorize(Policy = Policies.HotelOwner)]
+        [HttpGet("my")]
+        public async Task<IActionResult> GetMyHotels(CancellationToken ct)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var hotelsDTO = await _hotelService.GetMyHotelsAsync(userEmail, ct);
+            return Ok(hotelsDTO.Select(h=> _mapper.Map<HotelViewModel>(h)));
         }
     }
 }
