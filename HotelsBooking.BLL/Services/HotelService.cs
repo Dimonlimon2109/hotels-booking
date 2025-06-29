@@ -4,12 +4,14 @@ using FluentValidation;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
+using System.Security;
 
 namespace HotelsBooking.BLL.Services
 {
     public class HotelService
     {
         private readonly IHotelRepository _hotelRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IValidator<CreateHotelDTO> _creatingHotelValidator;
         private readonly IValidator<UpdateHotelDTO> _updatingHotelValidator;
@@ -17,18 +19,20 @@ namespace HotelsBooking.BLL.Services
 
         public HotelService(
             IHotelRepository hotelRepository,
+            IUserRepository userRepository,
             IMapper mapper,
             IValidator<CreateHotelDTO> creatingHotelValidator,
             IValidator<UpdateHotelDTO> updatingHotelValidator
             )
         {
             _hotelRepository = hotelRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
             _creatingHotelValidator = creatingHotelValidator;
             _updatingHotelValidator = updatingHotelValidator;
         }
 
-        public async Task<HotelDTO> CreateHotelAsync(CreateHotelDTO creatingHotel, CancellationToken ct = default)
+        public async Task<HotelDTO> CreateHotelAsync(string userEmail, CreateHotelDTO creatingHotel, CancellationToken ct = default)
         {
             var validationResult = _creatingHotelValidator.Validate(creatingHotel);
             if (!validationResult.IsValid)
@@ -36,8 +40,14 @@ namespace HotelsBooking.BLL.Services
                 throw new ValidationException(validationResult.Errors);
             }
 
+            var user = await _userRepository.GetByEmailAsync(userEmail);
+            if (user == null)
+            {
+                throw new SecurityException("Пользователь не аутентифицирован");
+            }
+
             var hotel = _mapper.Map<Hotel>(creatingHotel);
-            
+            hotel.Owner = user;
             await _hotelRepository.AddAsync(hotel, ct);
             return _mapper.Map<HotelDTO>(hotel);
         }

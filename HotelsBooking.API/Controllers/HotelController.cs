@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 namespace HotelsBooking.API.Controllers
 {
@@ -30,8 +31,9 @@ namespace HotelsBooking.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateHotel(CreateHotelModel creatingHotel, CancellationToken ct = default)
         {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
             var createHotelDTO = _mapper.Map<CreateHotelDTO>(creatingHotel);
-            var hotelDTO = await _hotelService.CreateHotelAsync(createHotelDTO, ct);
+            var hotelDTO = await _hotelService.CreateHotelAsync(userEmail, createHotelDTO, ct);
             var hotelViewModel = _mapper.Map<HotelViewModel>(hotelDTO);
             return Created();
         }
