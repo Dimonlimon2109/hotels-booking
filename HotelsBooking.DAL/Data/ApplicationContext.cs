@@ -15,6 +15,8 @@ namespace HotelsBooking.DAL.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new HotelConfiguration());
+            modelBuilder.ApplyConfiguration(new PhotoConfiguration());
+            modelBuilder.ApplyConfiguration(new HotelConfiguration());
         }
     }
 }
