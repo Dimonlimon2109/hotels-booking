@@ -35,6 +35,13 @@ namespace HotelsBooking.DAL.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(1500);
 
+            builder.Property(h => h.OwnerId)
+                .IsRequired();
+
+            builder.HasOne(h => h.Owner)
+                .WithMany(o => o.Hotels)
+                .HasForeignKey(h => h.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

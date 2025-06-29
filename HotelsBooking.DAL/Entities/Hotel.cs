@@ -10,5 +10,7 @@ namespace HotelsBooking.DAL.Entities
         public decimal Longitude { get; set; }
         public int StarRating { get; set; }
         public string Description { get; set; }
+        public int OwnerId {  get; set; }
+        public User Owner { get; set; }
     }
 }
