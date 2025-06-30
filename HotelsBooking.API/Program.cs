@@ -1,8 +1,10 @@
 using FluentValidation;
+using HotelsBooking.API.Adapters;
 using HotelsBooking.API.Constants;
 using HotelsBooking.API.Middlewares;
 using HotelsBooking.API.Options;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Services;
 using HotelsBooking.BLL.Validators;
 using HotelsBooking.DAL.Data;
@@ -64,9 +66,13 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<TokensService>();
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<HotelService>();
+builder.Services.AddScoped<ImageService>();
+
+builder.Services.AddSingleton<IImagePath, WebHostAdapter>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IHotelRepository, HotelRepository>();
+builder.Services.AddScoped<IHotelPhotoRepository, HotelPhotoRepository>();
 
 //builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddScoped<IValidator<RegisterDTO>, RegisterDTOValidator>();

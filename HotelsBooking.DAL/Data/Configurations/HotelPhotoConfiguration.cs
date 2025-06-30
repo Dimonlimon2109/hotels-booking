@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using HotelsBooking.DAL.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HotelsBooking.DAL.Data.Configurations
 {
-    internal class HotelPhotoConfiguration
+    public class HotelPhotoConfiguration: IEntityTypeConfiguration<HotelPhoto>
     {
+        public void Configure(EntityTypeBuilder<HotelPhoto> builder)
+        {
+            builder.HasOne(hp => hp.Hotel)
+                   .WithMany(h => h.Photos)
+                   .HasForeignKey(hp => hp.HotelId)
+                   .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }

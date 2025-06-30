@@ -1,20 +1,20 @@
 ﻿using AutoMapper;
+using HotelsBooking.API.Adapters;
 using HotelsBooking.API.Constants;
 using HotelsBooking.API.Models;
 using HotelsBooking.API.ViewModels;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 namespace HotelsBooking.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class HotelController: ControllerBase
+    public class HotelController : ControllerBase
     {
         private readonly HotelService _hotelService;
         private readonly IMapper _mapper;
@@ -80,7 +80,16 @@ namespace HotelsBooking.API.Controllers
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             var hotelsDTO = await _hotelService.GetMyHotelsAsync(userEmail, ct);
-            return Ok(hotelsDTO.Select(h=> _mapper.Map<HotelViewModel>(h)));
+            return Ok(hotelsDTO.Select(h => _mapper.Map<HotelViewModel>(h)));
+        }
+
+        [Authorize(Policy = Policies.HotelOwner)]
+        [HttpPost("{id:int}/photo")]
+        public async Task<IActionResult> UploadHotelPhoto(int id, IFormFile photo, CancellationToken ct = default)
+        {
+            var adapter = new FormFileAdapter(photo);
+            await _hotelService.UploadHotelPhotoAsync(id, adapter, ct);
+            return Ok();
         }
     }
 }

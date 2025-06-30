@@ -2,6 +2,7 @@
 using AutoMapper;
 using FluentValidation;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
 using Microsoft.IdentityModel.Tokens.Experimental;
@@ -16,6 +17,8 @@ namespace HotelsBooking.BLL.Services
         private readonly IMapper _mapper;
         private readonly IValidator<CreateHotelDTO> _creatingHotelValidator;
         private readonly IValidator<UpdateHotelDTO> _updatingHotelValidator;
+        private readonly ImageService _imageService;
+        private readonly IHotelPhotoRepository _hotelPhotoRepository;
 
 
         public HotelService(
@@ -23,7 +26,9 @@ namespace HotelsBooking.BLL.Services
             IUserRepository userRepository,
             IMapper mapper,
             IValidator<CreateHotelDTO> creatingHotelValidator,
-            IValidator<UpdateHotelDTO> updatingHotelValidator
+            IValidator<UpdateHotelDTO> updatingHotelValidator,
+            ImageService imageService,
+            IHotelPhotoRepository hotelPhotoRepository
             )
         {
             _hotelRepository = hotelRepository;
@@ -31,6 +36,8 @@ namespace HotelsBooking.BLL.Services
             _mapper = mapper;
             _creatingHotelValidator = creatingHotelValidator;
             _updatingHotelValidator = updatingHotelValidator;
+            _imageService = imageService;
+            _hotelPhotoRepository = hotelPhotoRepository;
         }
 
         public async Task<HotelDTO> CreateHotelAsync(string userEmail, CreateHotelDTO creatingHotel, CancellationToken ct = default)
@@ -107,6 +114,25 @@ namespace HotelsBooking.BLL.Services
             hotelItem.Longitude = updatingHotel.Longitude;
             hotelItem.Description = updatingHotel.Description;
             await _hotelRepository.UpdateAsync(hotelItem);
+        }
+
+        public async Task UploadHotelPhotoAsync(int id, IImageFile image, CancellationToken ct = default)
+        {
+            var hotelItem = await _hotelRepository.GetByIdAsync(id, ct)
+                ?? throw new NullReferenceException("Отель не найден");
+
+            if(hotelItem.Id != id)
+            {
+                throw new SecurityException("Фотографии может загружать только владелец отеля");
+            }
+
+            var imagePath = await _imageService.UploadImageAsync(image, "hotels", ct);
+            var hotelPhoto = new HotelPhoto
+            {
+                FilePath = imagePath,
+                HotelId = hotelItem.Id,
+            };
+            await _hotelPhotoRepository.AddAsync(hotelPhoto);
         }
     }
 }
