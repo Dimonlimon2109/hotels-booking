@@ -117,14 +117,15 @@ namespace HotelsBooking.BLL.Services
             await _hotelRepository.UpdateAsync(hotelItem);
         }
 
-        public async Task UploadHotelPhotoAsync(int id, IImageFile image, CancellationToken ct = default)
+        public async Task UploadHotelPhotoAsync(int id, IImageFile image, string userEmail, CancellationToken ct = default)
         {
             var hotelItem = await _hotelRepository.GetByIdAsync(id, ct)
                 ?? throw new NullReferenceException("Отель не найден");
 
-            if(hotelItem.Id != id)
+            var user = await _userRepository.GetByEmailAsync(userEmail, ct);
+            if (hotelItem.OwnerId != user?.Id)
             {
-                throw new SecurityException("Фотографии может загружать только владелец отеля");
+                throw new SecurityException("Фотографию может добавить только владелец");
             }
 
             var imagePath = await _imageService.UploadImageAsync(image, "hotels", ct);

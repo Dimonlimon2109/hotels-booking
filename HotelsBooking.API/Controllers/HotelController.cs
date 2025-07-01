@@ -88,12 +88,13 @@ namespace HotelsBooking.API.Controllers
         public async Task<IActionResult> UploadHotelPhoto(int id, IFormFile photo, CancellationToken ct = default)
         {
             var adapter = new FormFileAdapter(photo);
-            await _hotelService.UploadHotelPhotoAsync(id, adapter, ct);
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            await _hotelService.UploadHotelPhotoAsync(id, adapter, userEmail, ct);
             return Ok();
         }
 
         [Authorize(Policy = Policies.HotelOwner)]
-        [HttpPost("{hotelId:int}/photo/{photoId:int}")]
+        [HttpDelete("{hotelId:int}/photo/{photoId:int}")]
         public async Task<IActionResult> DeleteHotelPhoto(int hotelId, int photoId, CancellationToken ct = default)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
