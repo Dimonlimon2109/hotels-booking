@@ -6,7 +6,6 @@ namespace HotelsBooking.BLL.Services
     public class ImageService
     {
         private readonly IImagePath _rootPath;
-        private readonly string _imageDirectory = "images";
         public ImageService(IImagePath rootPath)
         {
             _rootPath = rootPath;
@@ -28,7 +27,7 @@ namespace HotelsBooking.BLL.Services
                 await image.CopyToAsync(fs, ct);
             }
 
-            return Path.Combine(_imageDirectory, directory, uniqueFileName);
+            return Path.Combine(directory, uniqueFileName);
         }
 
         public Task DeleteImageAsync(string imagePath, CancellationToken ct)
