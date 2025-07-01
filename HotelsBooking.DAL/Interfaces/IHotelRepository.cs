@@ -6,6 +6,8 @@ namespace HotelsBooking.DAL.Interfaces
     public interface IHotelRepository : IRepository<Hotel>
     {
         Task<Hotel?> GetHotelByIdWithOwnerAsync(int id, CancellationToken ct = default);
-        Task<IEnumerable<Hotel>?> GetOwnerHotelsAsync(int id, CancellationToken ct = default);
+        Task<Hotel?> GetSingleHotelWithPhotosAsync(int id, CancellationToken ct = default);
+        Task<IEnumerable<Hotel>> GetOwnerHotelsAsync(int id, CancellationToken ct = default);
+        Task<IEnumerable<Hotel>> GetHotelsWithPhotosAsync(CancellationToken ct = default);
     }
 }

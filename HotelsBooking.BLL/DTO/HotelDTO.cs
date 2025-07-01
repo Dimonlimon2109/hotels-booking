@@ -10,5 +10,6 @@ namespace HotelsBooking.BLL.DTO
         public decimal Longitude { get; set; }
         public int StarRating { get; set; }
         public string Description { get; set; }
+        public IEnumerable<HotelPhotoDTO> Photos { get; set; }
     }
 }
