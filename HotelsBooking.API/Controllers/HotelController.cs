@@ -91,5 +91,14 @@ namespace HotelsBooking.API.Controllers
             await _hotelService.UploadHotelPhotoAsync(id, adapter, ct);
             return Ok();
         }
+
+        [Authorize(Policy = Policies.HotelOwner)]
+        [HttpPost("{hotelId:int}/photo/{photoId:int}")]
+        public async Task<IActionResult> DeleteHotelPhoto(int hotelId, int photoId, CancellationToken ct = default)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            await _hotelService.DeleteHotelPhotoAsync(hotelId, photoId, userEmail, ct);
+            return NoContent();
+        }
     }
 }

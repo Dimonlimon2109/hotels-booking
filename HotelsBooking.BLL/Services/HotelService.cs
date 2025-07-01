@@ -135,5 +135,22 @@ namespace HotelsBooking.BLL.Services
             };
             await _hotelPhotoRepository.AddAsync(hotelPhoto);
         }
+
+        public async Task DeleteHotelPhotoAsync(int hotelId, int photoId, string userEmail, CancellationToken ct = default)
+        {
+            var hotelItem = await _hotelRepository.GetByIdAsync(hotelId, ct)
+                ?? throw new NullReferenceException("Отель не найден");
+
+            var user = await _userRepository.GetByEmailAsync(userEmail, ct);
+            if (hotelItem.OwnerId != user?.Id)
+            {
+                throw new SecurityException("Фотографии отеля может удалять только владелец");
+            }
+            var deletingPhoto = await _hotelPhotoRepository.GetByIdAsync(photoId, ct)
+                ?? throw new NullReferenceException("Фото отеля не найдено");
+
+            await _imageService.DeleteImageAsync(deletingPhoto.FilePath);
+            await _hotelPhotoRepository.DeleteAsync(photoId, ct);
+        }
     }
 }

@@ -30,7 +30,7 @@ namespace HotelsBooking.BLL.Services
             return Path.Combine(directory, uniqueFileName);
         }
 
-        public Task DeleteImageAsync(string imagePath, CancellationToken ct)
+        public Task DeleteImageAsync(string imagePath)
         {
             var filePath = Path.Combine (_rootPath.RootPath, imagePath);
 
