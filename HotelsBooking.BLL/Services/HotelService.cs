@@ -62,13 +62,14 @@ namespace HotelsBooking.BLL.Services
 
         public async Task<IEnumerable<HotelDTO>> GetAllHotelsAsync(CancellationToken ct = default)
         {
-            var hotels = await _hotelRepository.GetAllAsync(ct);
-            return hotels.Select(h => _mapper.Map<HotelDTO>(h));
+            var hotels = await _hotelRepository.GetHotelsWithPhotosAsync(ct);
+            var hotelsDTO = hotels.Select(h => _mapper.Map<HotelDTO>(h));
+            return hotelsDTO;
         }
 
         public async Task<HotelDTO> GetHotelAsync(int id, CancellationToken ct = default)
         {
-            var hotel = await _hotelRepository.GetByIdAsync(id, ct);
+            var hotel = await _hotelRepository.GetSingleHotelWithPhotosAsync(id, ct);
             return _mapper.Map<HotelDTO>(hotel);
         }
 

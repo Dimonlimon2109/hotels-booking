@@ -15,9 +15,19 @@ namespace HotelsBooking.DAL.Repositories
             return await _dbSet.Include(h => h.Owner).AsNoTracking().FirstOrDefaultAsync(h => h.Id == id);
         }
 
-        public async Task<IEnumerable<Hotel>?> GetOwnerHotelsAsync(int id, CancellationToken ct = default)
+        public async Task<Hotel?> GetSingleHotelWithPhotosAsync(int id, CancellationToken ct = default)
+        {
+            return await _dbSet.Include(h => h.Photos).AsNoTracking().FirstOrDefaultAsync(h => h.Id == id);
+        }
+
+        public async Task<IEnumerable<Hotel>> GetOwnerHotelsAsync(int id, CancellationToken ct = default)
         {
             return await _dbSet.Include(h => h.Owner).Where(h=> h.OwnerId == id).AsNoTracking().ToListAsync(ct);
+        }
+
+        public async Task<IEnumerable<Hotel>> GetHotelsWithPhotosAsync(CancellationToken ct = default)
+        {
+            return await _dbSet.Include(h => h.Photos).AsNoTracking().ToListAsync();
         }
     }
 }
