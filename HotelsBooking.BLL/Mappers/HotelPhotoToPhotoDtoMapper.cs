@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace HotelsBooking.BLL.Mappers
 {
-    public class HotelPhotoToHotelPhotoDtoMapper : Profile
+    public class HotelPhotoToPhotoDtoMapper : Profile
     {
-        public HotelPhotoToHotelPhotoDtoMapper()
+        public HotelPhotoToPhotoDtoMapper()
         {
-            CreateMap<HotelPhoto, HotelPhotoDTO>();
+            CreateMap<HotelPhoto, PhotoDTO>();
         }
     }
 }

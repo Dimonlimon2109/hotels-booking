@@ -1,6 +1,6 @@
 ﻿namespace HotelsBooking.API.ViewModels
 {
-    public class HotelPhotoViewModel
+    public class PhotoViewModel
     {
         public int Id { get; set; }
 
