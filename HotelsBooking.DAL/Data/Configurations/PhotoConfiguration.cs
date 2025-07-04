@@ -15,7 +15,8 @@ namespace HotelsBooking.DAL.Data.Configurations
         {
             builder
                 .HasDiscriminator<string>("PhotoType")
-                .HasValue<HotelPhoto>("Hotel");
+                .HasValue<HotelPhoto>("Hotel")
+                .HasValue<RoomPhoto>("Room");
 
             builder.HasKey(p => p.Id);
 

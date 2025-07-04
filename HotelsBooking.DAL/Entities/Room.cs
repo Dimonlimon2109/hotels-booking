@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace HotelsBooking.DAL.Entities
 {
-    internal class Room
+    public class Room
     {
+        public int Id { get; set; }
+        public int HotelId { get; set; }
+        public string Type { get; set; } // "Standard", "Deluxe" и т.д.
+        public decimal PricePerNight { get; set; }
+        public int Capacity { get; set; }
+        public Hotel Hotel { get; set; }
+        public ICollection<RoomPhoto> Photos { get; set; }
     }
 }
