@@ -9,6 +9,6 @@
         public decimal Longitude { get; set; }
         public int StarRating { get; set; }
         public string Description { get; set; }
-        public IEnumerable<HotelPhotoViewModel> Photos { get; set; }
+        public IEnumerable<PhotoViewModel> Photos { get; set; }
     }
 }
