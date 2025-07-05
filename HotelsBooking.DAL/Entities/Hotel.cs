@@ -15,5 +15,6 @@ namespace HotelsBooking.DAL.Entities
         public ICollection<Amenity> Amenities { get; set; }
         public ICollection<HotelPhoto> Photos { get; set; }
         public ICollection<Room> Rooms { get; set; }
+        public ICollection<Review> Reviews { get; set; }
     }
 }
