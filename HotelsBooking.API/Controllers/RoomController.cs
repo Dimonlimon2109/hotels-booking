@@ -67,5 +67,14 @@ namespace HotelsBooking.API.Controllers
             await _roomService.DeleteRoomPhotoAsync(roomId, photoId, userEmail, ct);
             return NoContent();
         }
+
+        [Authorize(Policy = Policies.HotelOwner)]
+        [HttpDelete("{roomId:int}")]
+        public async Task<IActionResult> Delete(int roomId, CancellationToken ct = default)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            await _roomService.DeleteRoomAsync(roomId, userEmail, ct);
+            return NoContent();
+        }
     }
 }

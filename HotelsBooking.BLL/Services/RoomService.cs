@@ -115,5 +115,19 @@ namespace HotelsBooking.BLL.Services
             await _imageService.DeleteImageAsync(deletingPhoto.FilePath);
             await _roomPhotoRepository.DeleteAsync(photoId, ct);
         }
+
+        public async Task DeleteRoomAsync(int id, string userEmail, CancellationToken ct = default)
+        {
+            var user = await _userRepository.GetByEmailAsync(userEmail, ct);
+            var deletingRoom = await _roomRepository.GetByIdAsync(id, ct)
+                ?? throw new NullReferenceException("Номер в отеле не найден");
+            var hotel = await _hotelRepository.GetByIdAsync(deletingRoom.HotelId);
+
+            if (user?.Id != hotel?.OwnerId)
+            {
+                throw new SecurityException("Номер отеля может удалить только владелец");
+            }
+            await _roomRepository.DeleteAsync(id, ct);
+        }
     }
 }
