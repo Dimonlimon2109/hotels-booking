@@ -5,5 +5,7 @@ namespace HotelsBooking.DAL.Interfaces
 {
     public interface IReviewRepository : IRepository<Review>
     {
+        Task<IEnumerable<Review>> GetReviewsWithUserAsync(int hotelId, CancellationToken ct = default);
+
     }
 }

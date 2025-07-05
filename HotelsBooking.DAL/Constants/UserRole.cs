@@ -5,6 +5,6 @@ namespace HotelsBooking.DAL.Constants
     {
         Admin,
         HotelOwner,
-        Guest
+        Client
     }
 }
