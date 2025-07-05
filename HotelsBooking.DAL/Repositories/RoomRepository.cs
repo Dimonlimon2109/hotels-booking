@@ -10,12 +10,12 @@ namespace HotelsBooking.DAL.Repositories
     {
         public RoomRepository(ApplicationContext context) : base(context) { }
 
-        public async Task<Room?> GetRoomAsync(int hotelId, int roomId, CancellationToken ct = default)
+        public async Task<Room?> GetRoomAsync(int roomId, CancellationToken ct = default)
         {
             return await _dbSet
                 .Include(r => r.Photos)
                 .AsNoTracking()
-                .Where(r => r.HotelId == hotelId && r.Id == roomId)
+                .Where(r => r.Id == roomId)
                 .FirstOrDefaultAsync(ct);
         }
 

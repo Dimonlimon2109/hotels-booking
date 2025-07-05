@@ -70,9 +70,9 @@ namespace HotelsBooking.BLL.Services
             var rooms = await _roomRepository.GetRoomsAsync(hotelId, ct);
             return rooms.Select(r => _mapper.Map<RoomDTO>(r));
         }
-        public async Task<RoomDTO> GetRoomByIdAsync(int hotelId, int roomId, CancellationToken ct = default)
+        public async Task<RoomDTO> GetRoomByIdAsync(int roomId, CancellationToken ct = default)
         {
-            var room = await _roomRepository.GetRoomAsync(hotelId, roomId, ct)
+            var room = await _roomRepository.GetRoomAsync(roomId, ct)
                 ?? throw new NullReferenceException("Номер в отеле не найден");
             return _mapper.Map<RoomDTO>(room);
         }
@@ -101,7 +101,7 @@ namespace HotelsBooking.BLL.Services
         public async Task DeleteRoomPhotoAsync(int roomId, int photoId, string userEmail, CancellationToken ct = default)
         {
             var roomItem = await _roomRepository.GetByIdAsync(roomId, ct)
-                ?? throw new NullReferenceException("Отель не найден");
+                ?? throw new NullReferenceException("Номер в отеле не найден");
 
             var hotelItem = await _hotelRepository.GetByIdAsync(roomItem.HotelId, ct);
             var user = await _userRepository.GetByEmailAsync(userEmail, ct);
@@ -110,7 +110,7 @@ namespace HotelsBooking.BLL.Services
                 throw new SecurityException("Фотографии номера отеля может удалять только владелец");
             }
             var deletingPhoto = await _roomPhotoRepository.GetByIdAsync(photoId, ct)
-                ?? throw new NullReferenceException("Фото отеля не найдено");
+                ?? throw new NullReferenceException("Фото номера отеля не найдено");
 
             await _imageService.DeleteImageAsync(deletingPhoto.FilePath);
             await _roomPhotoRepository.DeleteAsync(photoId, ct);

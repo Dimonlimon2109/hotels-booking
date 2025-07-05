@@ -33,7 +33,7 @@ namespace HotelsBooking.API.Controllers
             return Created();
         }
 
-        [HttpGet("{hotelId:int}")]
+        [HttpGet("hotel/{hotelId:int}")]
         public async Task<IActionResult> GetAll(int hotelId, CancellationToken ct = default)
         {
             var roomsDTO = await _roomService.GetRoomsByHotelIdAsync(hotelId);
@@ -41,10 +41,10 @@ namespace HotelsBooking.API.Controllers
             return Ok(roomsViewModel);
         }
 
-        [HttpGet("{hotelId:int}/{roomId:int}")]
-        public async Task<IActionResult> GetById(int hotelId, int roomId, CancellationToken ct = default)
+        [HttpGet("{roomId:int}")]
+        public async Task<IActionResult> GetById(int roomId, CancellationToken ct = default)
         {
-            var roomDTO = await _roomService.GetRoomByIdAsync(hotelId, roomId, ct);
+            var roomDTO = await _roomService.GetRoomByIdAsync(roomId, ct);
             var roomViewModel = _mapper.Map<RoomViewModel>(roomDTO);
             return Ok(roomViewModel);
         }
