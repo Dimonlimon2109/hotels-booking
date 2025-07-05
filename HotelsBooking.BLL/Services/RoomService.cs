@@ -62,5 +62,17 @@ namespace HotelsBooking.BLL.Services
             await _roomRepository.AddAsync(room, ct);
             return _mapper.Map<RoomDTO>(room);
         }
+
+        public async Task<IEnumerable<RoomDTO>> GetRoomsByHotelIdAsync(int hotelId, CancellationToken ct = default)
+        {
+            var rooms = await _roomRepository.GetRoomsAsync(hotelId, ct);
+            return rooms.Select(r => _mapper.Map<RoomDTO>(r));
+        }
+        public async Task<RoomDTO> GetRoomByIdAsync(int hotelId, int roomId, CancellationToken ct = default)
+        {
+            var room = await _roomRepository.GetRoomAsync(hotelId, roomId, ct)
+                ?? throw new NullReferenceException("Номер в отеле не найден");
+            return _mapper.Map<RoomDTO>(room);
+        }
     }
 }
