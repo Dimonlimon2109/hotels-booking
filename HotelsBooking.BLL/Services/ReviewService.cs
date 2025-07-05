@@ -2,6 +2,7 @@
 using AutoMapper;
 using FluentValidation;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.DAL.Data.Migrations;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
 using HotelsBooking.DAL.Repositories;
@@ -55,6 +56,11 @@ namespace HotelsBooking.BLL.Services
             var review = _mapper.Map<Review>(creatingReview);
             review.UserId = user.Id;
             await _reviewRepository.AddAsync(review, ct);
+
+            var reviewsCount = await _reviewRepository.CountHotelReviewsAsync(hotel.Id, ct);
+            var newRating = (hotel.ReviewRating * (reviewsCount - 1) + review.Rating) / reviewsCount;
+            hotel.ReviewRating = newRating;
+            await _hotelRepository.UpdateAsync(hotel, ct);
         }
 
         public async Task<IEnumerable<ReviewDTO>> GetAllReviewsByHotelAsync(int hotelId, CancellationToken ct = default)
@@ -79,6 +85,12 @@ namespace HotelsBooking.BLL.Services
                 throw new SecurityException("Только пользователь, оставивший отзыв, может его удалить");
             }
             await _reviewRepository.DeleteAsync(id, ct);
+
+            var hotel = await _hotelRepository.GetByIdAsync(review.HotelId, ct);
+            var reviewsCount = await _reviewRepository.CountHotelReviewsAsync(hotel.Id, ct);
+            var newRating = (hotel.ReviewRating * (reviewsCount + 1) - review.Rating) / reviewsCount;
+            hotel.ReviewRating = newRating;
+            await _hotelRepository.UpdateAsync(hotel, ct);
         }
 
         public async Task UpdateReviewAsync(int id, UpdateReviewDTO updatingReview, string userEmail, CancellationToken ct = default)
@@ -101,10 +113,17 @@ namespace HotelsBooking.BLL.Services
                 throw new SecurityException("Только пользователь, оставивший отзыв, может его изменить");
             }
 
+            var oldReviewRating = review.Rating;
             review.Comment = updatingReview.Comment;
             review.Rating = updatingReview.Rating;
 
             await _reviewRepository.UpdateAsync(review, ct);
+
+            var hotel = await _hotelRepository.GetByIdAsync(review.HotelId, ct);
+            var reviewsCount = await _reviewRepository.CountHotelReviewsAsync(hotel.Id, ct);
+            var newRating = (hotel.ReviewRating * reviewsCount - oldReviewRating + review.Rating) / reviewsCount;
+            hotel.ReviewRating = newRating;
+            await _hotelRepository.UpdateAsync(hotel, ct);
         }
     }
 }
