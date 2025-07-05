@@ -4,14 +4,12 @@ using FluentValidation;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
-using System.Security.Cryptography.X509Certificates;
 
 namespace HotelsBooking.BLL.Services
 {
     public class AmenityService
     {
         private readonly IAmenityRepository _amenityRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IValidator<CreateAmenityDTO> _creatingAmenityValidator;
         private readonly IValidator<UpdateAmenityDTO> _updateAmenityValidator;
@@ -19,14 +17,12 @@ namespace HotelsBooking.BLL.Services
         public AmenityService
             (
             IAmenityRepository amenityRepository,
-            IUserRepository userRepository,
             IMapper mapper,
             IValidator<CreateAmenityDTO> creatingAmenityValidator,
             IValidator<UpdateAmenityDTO> updateAmenityValidator
             )
         {
             _amenityRepository = amenityRepository;
-            _userRepository = userRepository;
             _mapper = mapper;
             _creatingAmenityValidator = creatingAmenityValidator;
             _updateAmenityValidator = updateAmenityValidator;
@@ -53,7 +49,8 @@ namespace HotelsBooking.BLL.Services
 
         public async Task<AmenityDTO> GetAmenityByIdAsync(int id, CancellationToken ct = default)
         {
-            var amenity = await _amenityRepository.GetByIdAsync(id, ct);
+            var amenity = await _amenityRepository.GetByIdAsync(id, ct)
+                ?? throw new NullReferenceException("Удобство не найдено");
             return _mapper.Map<AmenityDTO>(amenity);
         }
 
