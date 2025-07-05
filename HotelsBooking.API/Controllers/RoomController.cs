@@ -33,7 +33,9 @@ namespace HotelsBooking.API.Controllers
             return Created();
         }
 
-        [HttpGet("hotel/{hotelId:int}")]
+        //[HttpGet("hotel/{hotelId:int}")]
+        [HttpGet]
+        [Route("hotels/{hotelId:int}/rooms")]
         public async Task<IActionResult> GetAll(int hotelId, CancellationToken ct = default)
         {
             var roomsDTO = await _roomService.GetRoomsByHotelIdAsync(hotelId);
@@ -75,6 +77,16 @@ namespace HotelsBooking.API.Controllers
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             await _roomService.DeleteRoomAsync(roomId, userEmail, ct);
             return NoContent();
+        }
+
+        [Authorize(Policy = Policies.HotelOwner)]
+        [HttpPut("{roomId:int}")]
+        public async Task<IActionResult> Update(int roomId, UpdateRoomModel updatingRoom, CancellationToken ct = default)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var updatingRoomDTO = _mapper.Map<UpdateRoomDTO>(updatingRoom);
+            await _roomService.UpdateRoomAsync(roomId, userEmail, updatingRoomDTO, ct);
+            return Ok();
         }
     }
 }

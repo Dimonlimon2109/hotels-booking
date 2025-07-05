@@ -84,8 +84,7 @@ builder.Services.AddScoped<IValidator<LoginDTO>, LoginDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateHotelDTO>, CreateHotelDTOValidator>();
 builder.Services.AddScoped<IValidator<UpdateHotelDTO>, UpdateHotelDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateRoomDTO>, CreateRoomDTOValidator>();
-
-
+builder.Services.AddScoped<IValidator<UpdateRoomDTO>, UpdateRoomDTOValidator>();
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JWT"));
 var jwtOptions = builder.Configuration.GetSection("JWT").Get<JwtOptions>();

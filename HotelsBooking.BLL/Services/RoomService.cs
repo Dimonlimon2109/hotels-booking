@@ -20,6 +20,7 @@ namespace HotelsBooking.BLL.Services
         private readonly ImageService _imageService;
         private readonly IMapper _mapper;
         private readonly IValidator<CreateRoomDTO> _creatingRoomValidator;
+        private readonly IValidator<UpdateRoomDTO> _updatingRoomValidator;
 
         public RoomService(
             IUserRepository userRepository,
@@ -28,7 +29,8 @@ namespace HotelsBooking.BLL.Services
             IRoomPhotoRepository roomPhotoRepository,
             ImageService imageService,
             IMapper mapper,
-            IValidator<CreateRoomDTO> creatingRoomValidator
+            IValidator<CreateRoomDTO> creatingRoomValidator,
+            IValidator<UpdateRoomDTO> updatingRoomValidator
             )
         {
             _userRepository = userRepository;
@@ -38,6 +40,7 @@ namespace HotelsBooking.BLL.Services
             _imageService = imageService;
             _mapper = mapper;
             _creatingRoomValidator = creatingRoomValidator;
+            _updatingRoomValidator = updatingRoomValidator;
         }
         public async Task<RoomDTO> CreateRoomAsync(string userEmail, CreateRoomDTO creatingRoom, CancellationToken ct = default)
         {
@@ -128,6 +131,30 @@ namespace HotelsBooking.BLL.Services
                 throw new SecurityException("Номер отеля может удалить только владелец");
             }
             await _roomRepository.DeleteAsync(id, ct);
+        }
+
+        public async Task UpdateRoomAsync(int roomId, string userEmail, UpdateRoomDTO updatingRoom, CancellationToken ct = default)
+        {
+            var roomItem = await _roomRepository.GetByIdAsync(roomId, ct)
+                ?? throw new NullReferenceException("Номер отеля не найден");
+
+            var validationResult = _updatingRoomValidator.Validate(updatingRoom);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var user = await _userRepository.GetByEmailAsync(userEmail, ct);
+            var hotelItem = await _hotelRepository.GetByIdAsync(roomItem.HotelId, ct);
+            if (hotelItem.OwnerId != user?.Id)
+            {
+                throw new SecurityException("Информацию о номере отеля может изменить только владелец");
+            }
+
+            roomItem.PricePerNight = updatingRoom.PricePerNight;
+            roomItem.Capacity = updatingRoom.Capacity;
+            roomItem.Type = updatingRoom.Type;
+            await _roomRepository.UpdateAsync(roomItem);
         }
     }
 }
