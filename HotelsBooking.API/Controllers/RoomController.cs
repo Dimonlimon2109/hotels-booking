@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using HotelsBooking.API.Adapters;
+using HotelsBooking.API.Constants;
 using HotelsBooking.API.Models;
 using HotelsBooking.API.ViewModels;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.BLL.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -44,6 +47,25 @@ namespace HotelsBooking.API.Controllers
             var roomDTO = await _roomService.GetRoomByIdAsync(hotelId, roomId, ct);
             var roomViewModel = _mapper.Map<RoomViewModel>(roomDTO);
             return Ok(roomViewModel);
+        }
+
+        [Authorize(Policy = Policies.HotelOwner)]
+        [HttpPost("{id:int}/photo")]
+        public async Task<IActionResult> UploadRoomPhoto(int id, IFormFile photo, CancellationToken ct = default)
+        {
+            var adapter = new FormFileAdapter(photo);
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            await _roomService.UploadRoomPhotoAsync(id, adapter, userEmail, ct);
+            return Ok();
+        }
+
+        [Authorize(Policy = Policies.HotelOwner)]
+        [HttpDelete("{roomId:int}/photo/{photoId:int}")]
+        public async Task<IActionResult> DeleteRoomPhoto(int roomId, int photoId, CancellationToken ct = default)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            await _roomService.DeleteRoomPhotoAsync(roomId, photoId, userEmail, ct);
+            return NoContent();
         }
     }
 }

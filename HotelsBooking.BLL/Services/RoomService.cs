@@ -2,9 +2,11 @@
 using AutoMapper;
 using FluentValidation;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Validators;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
+using HotelsBooking.DAL.Repositories;
 using System.Security;
 
 namespace HotelsBooking.BLL.Services
@@ -73,6 +75,45 @@ namespace HotelsBooking.BLL.Services
             var room = await _roomRepository.GetRoomAsync(hotelId, roomId, ct)
                 ?? throw new NullReferenceException("Номер в отеле не найден");
             return _mapper.Map<RoomDTO>(room);
+        }
+
+        public async Task UploadRoomPhotoAsync(int id, IImageFile image, string userEmail, CancellationToken ct = default)
+        {
+            var roomItem = await _roomRepository.GetByIdAsync(id, ct)
+                ?? throw new NullReferenceException("Номер отеля не найден");
+
+            var user = await _userRepository.GetByEmailAsync(userEmail, ct);
+            var hotelItem = await _hotelRepository.GetByIdAsync(roomItem.HotelId, ct);
+            if (hotelItem.OwnerId != user?.Id)
+            {
+                throw new SecurityException("Фотографию может добавить только владелец");
+            }
+
+            var imagePath = await _imageService.UploadImageAsync(image, "rooms", ct);
+            var roomPhoto = new RoomPhoto
+            {
+                FilePath = imagePath,
+                RoomId = roomItem.Id,
+            };
+            await _roomPhotoRepository.AddAsync(roomPhoto);
+        }
+
+        public async Task DeleteRoomPhotoAsync(int roomId, int photoId, string userEmail, CancellationToken ct = default)
+        {
+            var roomItem = await _roomRepository.GetByIdAsync(roomId, ct)
+                ?? throw new NullReferenceException("Отель не найден");
+
+            var hotelItem = await _hotelRepository.GetByIdAsync(roomItem.HotelId, ct);
+            var user = await _userRepository.GetByEmailAsync(userEmail, ct);
+            if (hotelItem.OwnerId != user?.Id)
+            {
+                throw new SecurityException("Фотографии номера отеля может удалять только владелец");
+            }
+            var deletingPhoto = await _roomPhotoRepository.GetByIdAsync(photoId, ct)
+                ?? throw new NullReferenceException("Фото отеля не найдено");
+
+            await _imageService.DeleteImageAsync(deletingPhoto.FilePath);
+            await _roomPhotoRepository.DeleteAsync(photoId, ct);
         }
     }
 }
