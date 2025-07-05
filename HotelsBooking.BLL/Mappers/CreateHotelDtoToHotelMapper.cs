@@ -10,7 +10,7 @@ namespace HotelsBooking.BLL.Mappers
         public CreateHotelDtoToHotelMapper()
         {
             CreateMap<CreateHotelDTO, Hotel>()
-                .ForMember(dest => dest.StarRating, opt => opt.MapFrom(_ => 0));
+                .ForMember(dest => dest.ReviewRating, opt => opt.MapFrom(_ => 0));
         }
     }
 }

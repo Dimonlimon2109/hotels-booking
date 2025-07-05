@@ -15,6 +15,9 @@ namespace HotelsBooking.BLL.Validators
                 .NotEmpty().WithMessage("Адрес обязателен.")
                 .MaximumLength(200).WithMessage("Адрес не должен превышать 200 символов.");
 
+            RuleFor(x => x.StarRating)
+                .InclusiveBetween(1, 5).WithMessage("Звезды должны быть от 1 до 5.");
+
             RuleFor(x => x.Description)
                 .NotEmpty().WithMessage("Описание обязательно.")
                 .MaximumLength(1000).WithMessage("Описание не должно превышать 1000 символов.");

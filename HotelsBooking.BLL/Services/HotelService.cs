@@ -114,6 +114,7 @@ namespace HotelsBooking.BLL.Services
             hotelItem.Latitude = updatingHotel.Latitude;
             hotelItem.Longitude = updatingHotel.Longitude;
             hotelItem.Description = updatingHotel.Description;
+            hotelItem.StarRating = updatingHotel.StarRating;
             await _hotelRepository.UpdateAsync(hotelItem);
         }
 

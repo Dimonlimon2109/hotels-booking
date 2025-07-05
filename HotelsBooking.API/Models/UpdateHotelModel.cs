@@ -6,6 +6,7 @@
         string Address,
         decimal Latitude,
         decimal Longitude,
+        double StarRating,
         string Description
         );
 }

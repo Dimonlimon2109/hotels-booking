@@ -19,6 +19,10 @@ namespace HotelsBooking.DAL.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(150);
 
+            builder.Property(h => h.ReviewRating)
+                .IsRequired()
+                .HasDefaultValue(0);
+
             builder.Property(h => h.Latitude)
                 .HasColumnType("decimal(9,6)")
                 .IsRequired();
@@ -28,8 +32,7 @@ namespace HotelsBooking.DAL.Data.Configurations
                 .IsRequired();
 
             builder.Property(h => h.StarRating)
-                .HasDefaultValue(0);
-                //.HasAnnotation("Range", new { Minimum = 0, Maximum = 5 });
+                .IsRequired();
 
             builder.Property(h => h.Description)
                 .IsRequired()
