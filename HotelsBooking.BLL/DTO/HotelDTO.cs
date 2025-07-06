@@ -12,5 +12,6 @@ namespace HotelsBooking.BLL.DTO
         public double ReviewRating {  get; set; }
         public string Description { get; set; }
         public IEnumerable<PhotoDTO> Photos { get; set; }
+        public IEnumerable<AmenityDTO> Amenities { get; set; }
     }
 }

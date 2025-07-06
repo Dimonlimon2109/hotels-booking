@@ -11,5 +11,6 @@
         public double ReviewRating { get; set; }
         public string Description { get; set; }
         public IEnumerable<PhotoViewModel> Photos { get; set; }
+        public IEnumerable<AmenityViewModel> Amenities { get; set; }
     }
 }

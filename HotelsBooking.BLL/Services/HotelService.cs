@@ -5,7 +5,6 @@ using HotelsBooking.BLL.DTO;
 using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
-using Microsoft.IdentityModel.Tokens.Experimental;
 using System.Security;
 
 namespace HotelsBooking.BLL.Services
@@ -19,6 +18,7 @@ namespace HotelsBooking.BLL.Services
         private readonly IValidator<UpdateHotelDTO> _updatingHotelValidator;
         private readonly ImageService _imageService;
         private readonly IHotelPhotoRepository _hotelPhotoRepository;
+        private readonly IAmenityRepository _amenityRepository;
 
 
         public HotelService(
@@ -28,7 +28,8 @@ namespace HotelsBooking.BLL.Services
             IValidator<CreateHotelDTO> creatingHotelValidator,
             IValidator<UpdateHotelDTO> updatingHotelValidator,
             ImageService imageService,
-            IHotelPhotoRepository hotelPhotoRepository
+            IHotelPhotoRepository hotelPhotoRepository,
+            IAmenityRepository amenityRepository
             )
         {
             _hotelRepository = hotelRepository;
@@ -38,6 +39,7 @@ namespace HotelsBooking.BLL.Services
             _updatingHotelValidator = updatingHotelValidator;
             _imageService = imageService;
             _hotelPhotoRepository = hotelPhotoRepository;
+            _amenityRepository = amenityRepository;
         }
 
         public async Task<HotelDTO> CreateHotelAsync(string userEmail, CreateHotelDTO creatingHotel, CancellationToken ct = default)
@@ -54,7 +56,15 @@ namespace HotelsBooking.BLL.Services
                 throw new SecurityException("Пользователь не найден");
             }
 
+            var amenities = await _amenityRepository.GetExistingAmenitiesAsync(creatingHotel.AmenityIds);
+            var notFoundIds = creatingHotel.AmenityIds.Except(amenities.Select(a => a.Id));
+            if (notFoundIds.Any())
+            {
+                throw new ArgumentException($"Некорректные AmenityIds: {string.Join(", ", notFoundIds)}");
+            }
+
             var hotel = _mapper.Map<Hotel>(creatingHotel);
+            hotel.Amenities = amenities.ToList();
             hotel.OwnerId = user.Id;
             await _hotelRepository.AddAsync(hotel, ct);
             return _mapper.Map<HotelDTO>(hotel);
@@ -62,14 +72,14 @@ namespace HotelsBooking.BLL.Services
 
         public async Task<IEnumerable<HotelDTO>> GetAllHotelsAsync(CancellationToken ct = default)
         {
-            var hotels = await _hotelRepository.GetHotelsWithPhotosAsync(ct);
+            var hotels = await _hotelRepository.GetHotelsAsync(ct);
             var hotelsDTO = hotels.Select(h => _mapper.Map<HotelDTO>(h));
             return hotelsDTO;
         }
 
         public async Task<HotelDTO> GetHotelAsync(int id, CancellationToken ct = default)
         {
-            var hotel = await _hotelRepository.GetSingleHotelWithPhotosAsync(id, ct);
+            var hotel = await _hotelRepository.GetHotelAsync(id, ct);
             return _mapper.Map<HotelDTO>(hotel);
         }
 
@@ -109,12 +119,20 @@ namespace HotelsBooking.BLL.Services
                 throw new SecurityException("Информацию об отеле может изменить только владелец");
             }
 
+            var amenities = await _amenityRepository.GetExistingAmenitiesAsync(updatingHotel.AmenityIds);
+            var notFoundIds = updatingHotel.AmenityIds.Except(amenities.Select(a => a.Id));
+            if (notFoundIds.Any())
+            {
+                throw new ArgumentException($"Некорректные AmenityIds: {string.Join(", ", notFoundIds)}");
+            }
+
             hotelItem.Name = updatingHotel.Name;
             hotelItem.Address = updatingHotel.Address;
             hotelItem.Latitude = updatingHotel.Latitude;
             hotelItem.Longitude = updatingHotel.Longitude;
             hotelItem.Description = updatingHotel.Description;
             hotelItem.StarRating = updatingHotel.StarRating;
+            hotelItem.Amenities = amenities.ToList();
             await _hotelRepository.UpdateAsync(hotelItem);
         }
 

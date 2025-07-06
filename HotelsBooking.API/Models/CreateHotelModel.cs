@@ -7,6 +7,7 @@
         decimal Latitude,
         decimal Longitude,
         double StarRating,
-        string Description
+        string Description,
+        IEnumerable<int> AmenityIds
         );
 }
