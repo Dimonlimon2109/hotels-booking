@@ -4,6 +4,7 @@ using HotelsBooking.API.Constants;
 using HotelsBooking.API.Models;
 using HotelsBooking.API.ViewModels;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Models;
 using HotelsBooking.BLL.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,11 +39,16 @@ namespace HotelsBooking.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllHotels(CancellationToken ct = default)
+        public async Task<IActionResult> GetAllHotels([FromQuery] HotelFiltersModel filters, CancellationToken ct = default)
         {
-            var hotelsDTO = await _hotelService.GetAllHotelsAsync(ct);
+            var hotelsDTO = await _hotelService.GetAllHotelsAsync(filters, ct);
+            var totalCount = await _hotelService.GetTotalPagesAsync(filters, ct);
             var hotelsViewModel = hotelsDTO.Select(h => _mapper.Map<HotelViewModel>(h));
-            return Ok(hotelsViewModel);
+            return Ok(new
+            {
+                hotelsViewModel,
+                totalCount
+            });
         }
 
         [HttpGet("{id:int}")]

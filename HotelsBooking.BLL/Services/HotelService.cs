@@ -3,6 +3,7 @@ using AutoMapper;
 using FluentValidation;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.BLL.Interfaces;
+using HotelsBooking.BLL.Models;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
 using System.Security;
@@ -70,11 +71,30 @@ namespace HotelsBooking.BLL.Services
             return _mapper.Map<HotelDTO>(hotel);
         }
 
-        public async Task<IEnumerable<HotelDTO>> GetAllHotelsAsync(CancellationToken ct = default)
+        public async Task<IEnumerable<HotelDTO>> GetAllHotelsAsync(HotelFiltersModel filters, CancellationToken ct = default)
         {
-            var hotels = await _hotelRepository.GetHotelsAsync(ct);
+            var hotels = await _hotelRepository.GetAllHotelsWithFiltersAsync(
+                filters.Limit,
+                filters.Offset,
+                filters.Name,
+                filters.City,
+                filters.StarRating,
+                filters.AmenityIds,
+                filters.SortBy,
+                filters.Order,
+                ct);
             var hotelsDTO = hotels.Select(h => _mapper.Map<HotelDTO>(h));
             return hotelsDTO;
+        }
+
+        public async Task<int> GetTotalPagesAsync(HotelFiltersModel filters, CancellationToken ct = default)
+        {
+            return await _hotelRepository.GetHotelsTotalCountAsync(
+                filters.Name,
+                filters.City,
+                filters.StarRating,
+                filters.AmenityIds,
+                ct);
         }
 
         public async Task<HotelDTO> GetHotelAsync(int id, CancellationToken ct = default)
