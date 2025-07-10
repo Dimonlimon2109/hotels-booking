@@ -12,11 +12,12 @@ using System.Security.Claims;
 
 namespace HotelsBooking.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/hotels")]
     [ApiController]
     public class HotelController : ControllerBase
     {
         private readonly HotelService _hotelService;
+        private readonly RoomService _roomService;
         private readonly IMapper _mapper;
 
         public HotelController(
@@ -49,6 +50,14 @@ namespace HotelsBooking.API.Controllers
                 hotelsViewModel,
                 totalCount
             });
+        }
+
+        [HttpGet("{hotelId:int}/rooms")]
+        public async Task<IActionResult> GetAll(int hotelId, CancellationToken ct = default) //rename
+        {
+            var roomsDTO = await _roomService.GetRoomsByHotelIdAsync(hotelId);
+            var roomsViewModel = roomsDTO.Select(hd => _mapper.Map<RoomViewModel>(hd));
+            return Ok(roomsViewModel);
         }
 
         [HttpGet("{id:int}")]
