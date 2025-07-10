@@ -4,6 +4,7 @@ using HotelsBooking.API.Constants;
 using HotelsBooking.API.Models;
 using HotelsBooking.API.ViewModels;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Models;
 using HotelsBooking.BLL.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,14 +32,6 @@ namespace HotelsBooking.API.Controllers
             var createRoomDTO = _mapper.Map<CreateRoomDTO>(creatingRoom);
             var RoomDTO = await _roomService.CreateRoomAsync(userEmail, createRoomDTO, ct);
             return Created();
-        }
-
-        [HttpGet("hotel/{hotelId:int}")]
-        public async Task<IActionResult> GetAll(int hotelId, CancellationToken ct = default) //rename
-        {
-            var roomsDTO = await _roomService.GetRoomsByHotelIdAsync(hotelId);
-            var roomsViewModel = roomsDTO.Select(hd => _mapper.Map<RoomViewModel>(hd));
-            return Ok(roomsViewModel);
         }
 
         [HttpGet("{roomId:int}")]

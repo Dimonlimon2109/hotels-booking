@@ -3,6 +3,7 @@ using AutoMapper;
 using FluentValidation;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.BLL.Interfaces;
+using HotelsBooking.BLL.Models;
 using HotelsBooking.BLL.Validators;
 using HotelsBooking.DAL.Constants;
 using HotelsBooking.DAL.Entities;
@@ -69,10 +70,61 @@ namespace HotelsBooking.BLL.Services
             return _mapper.Map<RoomDTO>(room);
         }
 
-        public async Task<IEnumerable<RoomDTO>> GetRoomsByHotelIdAsync(int hotelId, CancellationToken ct = default)
+        public async Task<IEnumerable<RoomDTO>> GetRoomsByHotelIdAsync(
+            int hotelId,
+            RoomFiltersModel filters,
+            CancellationToken ct = default)
         {
-            var rooms = await _roomRepository.GetRoomsAsync(hotelId, ct);
+            RoomType? type = null;
+
+            if (!string.IsNullOrWhiteSpace(filters.Type))
+            {
+                if (Enum.TryParse<RoomType>(filters.Type, true, out var parsedType))
+                {
+                    type = parsedType;
+                }
+                else
+                {
+                    throw new ArgumentException("Неверный тип номера отеля.");
+                }
+            }
+            var rooms = await _roomRepository.GetAllHotelsWithFiltersAsync(
+                hotelId,
+                filters.Limit,
+                filters.Offset,
+                type,
+                filters.MinPrice,
+                filters.MaxPrice,
+                filters.Capacity,
+                filters.SortBy,
+                filters.Order,
+                ct);
             return rooms.Select(r => _mapper.Map<RoomDTO>(r));
+        }
+
+        public async Task<int> GetTotalPagesAsync(int hotelId, RoomFiltersModel filters, CancellationToken ct = default)
+        {
+            RoomType? type = null;
+
+            if (!string.IsNullOrWhiteSpace(filters.Type))
+            {
+                if (Enum.TryParse<RoomType>(filters.Type, true, out var parsedType))
+                {
+                    type = parsedType;
+                }
+                else
+                {
+                    throw new ArgumentException("Неверный тип номера отеля.");
+                }
+            }
+
+            return await _roomRepository.GetRoomsTotalCountAsync(
+                hotelId,
+                type,
+                filters.MinPrice,
+                filters.MaxPrice,
+                filters.Capacity,
+                ct);
         }
         public async Task<RoomDTO> GetRoomByIdAsync(int roomId, CancellationToken ct = default)
         {
