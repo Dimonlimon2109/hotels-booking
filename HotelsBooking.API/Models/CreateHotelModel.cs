@@ -3,7 +3,10 @@
     public record CreateHotelModel
         (
         string Name,
-        string Address,
+        string Country,
+        string City,
+        string Street,
+        string HouseNumber,
         decimal Latitude,
         decimal Longitude,
         double StarRating,

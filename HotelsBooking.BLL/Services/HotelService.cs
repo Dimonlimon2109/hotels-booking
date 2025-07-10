@@ -127,7 +127,10 @@ namespace HotelsBooking.BLL.Services
             }
 
             hotelItem.Name = updatingHotel.Name;
-            hotelItem.Address = updatingHotel.Address;
+            hotelItem.Country = updatingHotel.Country;
+            hotelItem.City = updatingHotel.City;
+            hotelItem.Street = updatingHotel.Street;
+            hotelItem.HouseNumber = updatingHotel.HouseNumber;
             hotelItem.Latitude = updatingHotel.Latitude;
             hotelItem.Longitude = updatingHotel.Longitude;
             hotelItem.Description = updatingHotel.Description;

@@ -9,7 +9,15 @@ namespace HotelsBooking.BLL.Mappers
     {
         public HotelToHotelDtoMapper()
         {
-            CreateMap<Hotel, HotelDTO>();
+            CreateMap<Hotel, HotelDTO>()
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src =>
+                string.Join (", ", new[]
+                {
+                    src.Country,
+                    src.City,
+                    src.Street,
+                    $"д. {src.HouseNumber}"
+                })));
         }
     }
 }

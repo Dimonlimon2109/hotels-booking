@@ -15,13 +15,21 @@ namespace HotelsBooking.DAL.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(100);
 
-            builder.Property(h => h.Address)
+            builder.Property(h => h.Country)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            builder.Property(h => h.City)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            builder.Property(h => h.Street)
                 .IsRequired()
                 .HasMaxLength(150);
 
-            builder.Property(h => h.ReviewRating)
+            builder.Property(h => h.HouseNumber)
                 .IsRequired()
-                .HasDefaultValue(0);
+                .HasMaxLength(20);
 
             builder.Property(h => h.Latitude)
                 .HasColumnType("decimal(9,6)")
@@ -34,9 +42,14 @@ namespace HotelsBooking.DAL.Data.Configurations
             builder.Property(h => h.StarRating)
                 .IsRequired();
 
+            builder.Property(h => h.ReviewRating)
+                .IsRequired()
+                .HasDefaultValue(0)
+                .HasPrecision(3, 2);
+
             builder.Property(h => h.Description)
                 .IsRequired()
-                .HasMaxLength(1500);
+                .HasMaxLength(1000);
 
             builder.Property(h => h.OwnerId)
                 .IsRequired();
