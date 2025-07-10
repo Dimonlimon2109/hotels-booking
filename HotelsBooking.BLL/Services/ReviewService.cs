@@ -2,7 +2,6 @@
 using AutoMapper;
 using FluentValidation;
 using HotelsBooking.BLL.DTO;
-using HotelsBooking.DAL.Data.Migrations;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
 using HotelsBooking.DAL.Repositories;

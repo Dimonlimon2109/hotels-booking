@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.DAL.Constants;
 using HotelsBooking.DAL.Entities;
 
 namespace HotelsBooking.BLL.Mappers
@@ -9,7 +10,10 @@ namespace HotelsBooking.BLL.Mappers
     {
         public CreateRoomDtoToRoomMapper()
         {
-            CreateMap<CreateRoomDTO, Room>();
+            CreateMap<CreateRoomDTO, Room>()
+                .ForMember(dest => dest.Type,
+                    opt => opt.MapFrom(src =>
+                        Enum.Parse<RoomType>(src.Type, true)));
         }
     }
 }

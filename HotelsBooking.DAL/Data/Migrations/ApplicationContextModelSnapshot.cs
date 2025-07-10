@@ -198,10 +198,8 @@ namespace HotelsBooking.DAL.Data.Migrations
                     b.Property<decimal>("PricePerNight")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

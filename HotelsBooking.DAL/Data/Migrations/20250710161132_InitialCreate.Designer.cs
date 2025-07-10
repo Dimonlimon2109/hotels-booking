@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HotelsBooking.DAL.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20250705220130_AddReviewRating")]
-    partial class AddReviewRating
+    [Migration("20250710161132_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,15 +66,25 @@ namespace HotelsBooking.DAL.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
+                    b.Property<string>("City")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(1500)
-                        .HasColumnType("character varying(1500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("HouseNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<decimal>("Latitude")
                         .HasColumnType("decimal(9,6)");
@@ -92,11 +102,17 @@ namespace HotelsBooking.DAL.Data.Migrations
 
                     b.Property<double>("ReviewRating")
                         .ValueGeneratedOnAdd()
+                        .HasPrecision(3, 2)
                         .HasColumnType("double precision")
                         .HasDefaultValue(0.0);
 
                     b.Property<int>("StarRating")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.HasKey("Id");
 
@@ -185,10 +201,8 @@ namespace HotelsBooking.DAL.Data.Migrations
                     b.Property<decimal>("PricePerNight")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

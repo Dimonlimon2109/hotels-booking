@@ -9,7 +9,8 @@ namespace HotelsBooking.BLL.Mappers
     {
         public RoomToRoomDtoMapper()
         {
-            CreateMap<Room, RoomDTO>();
+            CreateMap<Room, RoomDTO>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()));
         }
     }
 }

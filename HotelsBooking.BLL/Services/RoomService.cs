@@ -4,6 +4,7 @@ using FluentValidation;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Validators;
+using HotelsBooking.DAL.Constants;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
 using HotelsBooking.DAL.Repositories;
@@ -153,7 +154,7 @@ namespace HotelsBooking.BLL.Services
 
             roomItem.PricePerNight = updatingRoom.PricePerNight;
             roomItem.Capacity = updatingRoom.Capacity;
-            roomItem.Type = updatingRoom.Type;
+            roomItem.Type = Enum.Parse<RoomType>(updatingRoom.Type, true);
             await _roomRepository.UpdateAsync(roomItem);
         }
     }

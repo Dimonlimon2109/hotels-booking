@@ -22,9 +22,11 @@ namespace HotelsBooking.API.Controllers
 
         public HotelController(
             HotelService hotelService,
+            RoomService roomService,
             IMapper mapper)
         {
             _hotelService = hotelService;
+            _roomService = roomService;
             _mapper = mapper;
         }
 
