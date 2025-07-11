@@ -52,7 +52,10 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString(nameof(ApplicationContext)));
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString(nameof(ApplicationContext)),
+        o => o.UseNetTopologySuite()
+    );
 });
 
 builder.Services.AddAutoMapper(cfg =>

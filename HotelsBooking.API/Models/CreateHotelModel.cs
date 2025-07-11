@@ -7,8 +7,8 @@
         string City,
         string Street,
         string HouseNumber,
-        decimal Latitude,
-        decimal Longitude,
+        double Latitude,
+        double Longitude,
         double StarRating,
         string Description,
         IEnumerable<int> AmenityIds

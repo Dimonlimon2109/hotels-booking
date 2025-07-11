@@ -67,7 +67,8 @@ namespace HotelsBooking.BLL.Services
             var hotel = _mapper.Map<Hotel>(creatingHotel);
             hotel.Amenities = amenities.ToList();
             hotel.OwnerId = user.Id;
-            await _hotelRepository.AddAsync(hotel, ct);
+            await _hotelRepository.AddAsync(hotel, creatingHotel.Latitude, creatingHotel.Longitude, ct);
+            await _hotelRepository.SaveChangesAsync(ct);
             return _mapper.Map<HotelDTO>(hotel);
         }
 
@@ -80,6 +81,8 @@ namespace HotelsBooking.BLL.Services
                 filters.City,
                 filters.StarRating,
                 filters.AmenityIds,
+                filters.CenterLatitude,
+                filters.CenterLongitude,
                 filters.SortBy,
                 filters.Order,
                 ct);
@@ -120,6 +123,7 @@ namespace HotelsBooking.BLL.Services
                 throw new SecurityException("Отель может удалить только владелец");
             }
             await _hotelRepository.DeleteAsync(id, ct);
+            await _hotelRepository.SaveChangesAsync(ct);
         }
 
         public async Task UpdateHotelAsync(int id, string userEmail, UpdateHotelDTO updatingHotel,  CancellationToken ct = default)
@@ -151,12 +155,11 @@ namespace HotelsBooking.BLL.Services
             hotelItem.City = updatingHotel.City;
             hotelItem.Street = updatingHotel.Street;
             hotelItem.HouseNumber = updatingHotel.HouseNumber;
-            hotelItem.Latitude = updatingHotel.Latitude;
-            hotelItem.Longitude = updatingHotel.Longitude;
             hotelItem.Description = updatingHotel.Description;
             hotelItem.StarRating = updatingHotel.StarRating;
             hotelItem.Amenities = amenities.ToList();
-            await _hotelRepository.UpdateAsync(hotelItem);
+            _hotelRepository.Update(hotelItem, updatingHotel.Latitude, updatingHotel.Longitude);
+            await _hotelRepository.SaveChangesAsync(ct);
         }
 
         public async Task UploadHotelPhotoAsync(int id, IImageFile image, string userEmail, CancellationToken ct = default)
@@ -177,6 +180,7 @@ namespace HotelsBooking.BLL.Services
                 HotelId = hotelItem.Id,
             };
             await _hotelPhotoRepository.AddAsync(hotelPhoto);
+            await _hotelRepository.SaveChangesAsync(ct);
         }
 
         public async Task DeleteHotelPhotoAsync(int hotelId, int photoId, string userEmail, CancellationToken ct = default)
@@ -194,6 +198,7 @@ namespace HotelsBooking.BLL.Services
 
             await _imageService.DeleteImageAsync(deletingPhoto.FilePath);
             await _hotelPhotoRepository.DeleteAsync(photoId, ct);
+            await _hotelRepository.SaveChangesAsync(ct);
         }
     }
 }

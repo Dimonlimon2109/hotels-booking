@@ -31,13 +31,8 @@ namespace HotelsBooking.DAL.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(20);
 
-            builder.Property(h => h.Latitude)
-                .HasColumnType("decimal(9,6)")
-                .IsRequired();
-
-            builder.Property(h => h.Longitude)
-                .HasColumnType("decimal(9,6)")
-                .IsRequired();
+            builder.Property(h => h.Location)
+                .HasColumnType("geography (point)");
 
             builder.Property(h => h.StarRating)
                 .IsRequired();
