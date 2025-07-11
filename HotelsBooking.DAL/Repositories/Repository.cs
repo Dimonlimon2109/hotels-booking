@@ -32,13 +32,11 @@ namespace HotelsBooking.DAL.Repositories
         public async Task AddAsync(T entity, CancellationToken ct = default)
         {
             await _dbSet.AddAsync(entity, ct);
-            await _context.SaveChangesAsync(ct);
         }
 
-        public async Task UpdateAsync(T entity, CancellationToken ct = default)
+        public void Update(T entity)
         {
             _dbSet.Entry(entity).State = EntityState.Modified;
-            await _context.SaveChangesAsync(ct);
         }
 
         public async Task DeleteAsync(int id, CancellationToken ct = default)
@@ -48,8 +46,12 @@ namespace HotelsBooking.DAL.Repositories
             {
                 _dbSet.Attach(entity);
                 _dbSet.Remove(entity);
-                await _context.SaveChangesAsync(ct);
             }
+        }
+
+        public async Task SaveChangesAsync(CancellationToken ct = default)
+        {
+            await _context.SaveChangesAsync(ct);
         }
     }
 }

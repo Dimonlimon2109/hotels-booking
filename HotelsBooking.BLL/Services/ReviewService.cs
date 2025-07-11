@@ -60,7 +60,8 @@ namespace HotelsBooking.BLL.Services
             var reviewsCount = await _reviewRepository.CountHotelReviewsAsync(hotel.Id, ct);
             var newRating = (hotel.ReviewRating * (reviewsCount - 1) + review.Rating) / reviewsCount;
             hotel.ReviewRating = newRating;
-            await _hotelRepository.UpdateAsync(hotel, ct);
+            _hotelRepository.Update(hotel);
+            await _reviewRepository.SaveChangesAsync(ct);
         }
 
         public async Task<IEnumerable<ReviewDTO>> GetAllReviewsByHotelAsync(int hotelId, CancellationToken ct = default)
@@ -90,7 +91,9 @@ namespace HotelsBooking.BLL.Services
             var reviewsCount = await _reviewRepository.CountHotelReviewsAsync(hotel.Id, ct);
             var newRating = (hotel.ReviewRating * (reviewsCount + 1) - review.Rating) / reviewsCount;
             hotel.ReviewRating = newRating;
-            await _hotelRepository.UpdateAsync(hotel, ct);
+            _hotelRepository.Update(hotel);
+
+            await _reviewRepository.SaveChangesAsync(ct);
         }
 
         public async Task UpdateReviewAsync(int id, UpdateReviewDTO updatingReview, string userEmail, CancellationToken ct = default)
@@ -117,13 +120,15 @@ namespace HotelsBooking.BLL.Services
             review.Comment = updatingReview.Comment;
             review.Rating = updatingReview.Rating;
 
-            await _reviewRepository.UpdateAsync(review, ct);
+            _reviewRepository.Update(review);
 
             var hotel = await _hotelRepository.GetByIdAsync(review.HotelId, ct);
             var reviewsCount = await _reviewRepository.CountHotelReviewsAsync(hotel.Id, ct);
             var newRating = (hotel.ReviewRating * reviewsCount - oldReviewRating + review.Rating) / reviewsCount;
             hotel.ReviewRating = newRating;
-            await _hotelRepository.UpdateAsync(hotel, ct);
+            _hotelRepository.Update(hotel);
+
+            await _reviewRepository.SaveChangesAsync(ct);
         }
     }
 }

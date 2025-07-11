@@ -4,6 +4,7 @@ using FluentValidation;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
+using HotelsBooking.DAL.Repositories;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
@@ -45,6 +46,7 @@ namespace HotelsBooking.BLL.Services
 
             var user = _mapper.Map<User>(registeringUser);
             await _userRepository.AddAsync(user);
+            await _userRepository.SaveChangesAsync(ct);
         }
 
         public async Task<TokensDTO> LoginAsync(LoginDTO loginingInUser, CancellationToken ct = default)
@@ -69,7 +71,8 @@ namespace HotelsBooking.BLL.Services
             var refreshToken = _tokensService.GenerateRefreshToken();
             user.RefreshToken = refreshToken.RefreshToken;
             user.RefreshTokenExpiresAt = refreshToken.ExpiresAt;
-            await _userRepository.UpdateAsync(user);
+            _userRepository.Update(user);
+            await _userRepository.SaveChangesAsync(ct);
 
             var accessToken = _tokensService.GenerateAccessToken(user);
             return new TokensDTO { AccessToken = accessToken, RefreshToken = refreshToken.RefreshToken};
@@ -100,7 +103,8 @@ namespace HotelsBooking.BLL.Services
             user.RefreshToken = refreshToken.RefreshToken;
             user.RefreshTokenExpiresAt = refreshToken.ExpiresAt;
 
-            await _userRepository.UpdateAsync(user, ct);
+            _userRepository.Update(user);
+            await _userRepository.SaveChangesAsync(ct);
 
             var accessToken = _tokensService.GenerateAccessToken(user);
             return new TokensDTO { AccessToken = accessToken, RefreshToken = refreshToken.RefreshToken };

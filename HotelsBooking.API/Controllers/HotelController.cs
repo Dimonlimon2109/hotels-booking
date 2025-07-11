@@ -53,7 +53,7 @@ namespace HotelsBooking.API.Controllers
         }
 
         [HttpGet("{hotelId:int}/rooms")]
-        public async Task<IActionResult> GetAll(int hotelId, CancellationToken ct = default) //rename
+        public async Task<IActionResult> GetAllRoomsByHotelId(int hotelId, CancellationToken ct = default) //rename
         {
             var roomsDTO = await _roomService.GetRoomsByHotelIdAsync(hotelId);
             var roomsViewModel = roomsDTO.Select(hd => _mapper.Map<RoomViewModel>(hd));

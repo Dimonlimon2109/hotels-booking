@@ -16,6 +16,8 @@ namespace HotelsBooking.DAL.Interfaces
             string? county,
             int? starRating,
             IEnumerable<int> amenityIds,
+            double? centerLatitude,
+            double? centerLongitude,
             string? sortBy,
             string? order,
             CancellationToken ct = default
@@ -26,5 +28,7 @@ namespace HotelsBooking.DAL.Interfaces
             int? starRating,
             IEnumerable<int>? amenityIds,
             CancellationToken ct = default);
+        void Update(Hotel hotel, double latitude,double longitude);
+        Task AddAsync(Hotel hotel, double latitude, double longitude, CancellationToken ct = default);
     }
 }

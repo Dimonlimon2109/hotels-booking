@@ -3,6 +3,8 @@ using HotelsBooking.DAL.Data;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
+using NetTopologySuite;
 
 namespace HotelsBooking.DAL.Repositories
 {
@@ -37,6 +39,8 @@ namespace HotelsBooking.DAL.Repositories
             string? city,
             int? starRating,
             IEnumerable<int>? amenityIds,
+            double? centerLatitude,
+            double? centerLongitude,
             string? sortBy,
             string? order,
             CancellationToken ct = default
@@ -76,16 +80,17 @@ namespace HotelsBooking.DAL.Repositories
                             : query.OrderBy(h => h.ReviewRating);
                         break;
 
-                    //case "distance":
-                    //    if(centerLatitude.HasValue && centerLongitude.HasValue)
-                    //    {
-                    //        double latCenter = centerLatitude.Value;
-                    //        double lonCenter = centerLongitude.Value;
+                    case "distance":
+                        if (centerLatitude.HasValue && centerLongitude.HasValue)
+                        {
+                            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+                            var centerPoint = geometryFactory.CreatePoint(new Coordinate(centerLongitude.Value, centerLatitude.Value));
 
-                    //        query = orderLower == "desc" ? query.OrderByDescending(h => GetDistanceKm(latCenter, lonCenter, (double)h.Latitude, (double)h.Longitude))
-                    //            : query.OrderBy(h => GetDistanceKm(latCenter, lonCenter, (double)h.Latitude, (double)h.Longitude));
-                    //    }
-                    //    break;
+                            query = orderLower == "desc"
+                                ? query.OrderByDescending(h => h.Location.Distance(centerPoint))
+                                : query.OrderBy(h => h.Location.Distance(centerPoint));
+                        }
+                        break;
 
                     default:
                         query = query.OrderBy(h => h.Id);
@@ -134,22 +139,27 @@ namespace HotelsBooking.DAL.Repositories
             return await query.CountAsync(ct);
         }
 
+        public void Update(
+            Hotel hotel,
+            double latitude,
+            double longitude)
+        {
+            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+            var point = geometryFactory.CreatePoint(new Coordinate(longitude, latitude));
+            hotel.Location = point;
+            _dbSet.Entry(hotel).State = EntityState.Modified;
+        }
 
-
-        //private static double GetDistanceKm(double lat1, double lon1, double lat2, double lon2)
-        //{
-        //    const double R = 6371;
-        //    double dLat = DegreesToRadians(lat2 - lat1);
-        //    double dLon = DegreesToRadians(lon2 - lon1);
-
-        //    double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-        //               Math.Cos(DegreesToRadians(lat1)) * Math.Cos(DegreesToRadians(lat2)) *
-        //               Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-
-        //    double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-        //    return R * c;
-        //}
-
-        //private static double DegreesToRadians(double deg) => deg * Math.PI / 180;
+        public async Task AddAsync(
+            Hotel hotel, 
+            double latitude,
+            double longitude,
+            CancellationToken ct = default)
+        {
+            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+            var point = geometryFactory.CreatePoint(new Coordinate(longitude, latitude));
+            hotel.Location = point;
+            await _dbSet.AddAsync(hotel, ct);
+        }
     }
 }

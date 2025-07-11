@@ -1,4 +1,6 @@
 ﻿
+using NetTopologySuite.Geometries;
+
 namespace HotelsBooking.DAL.Entities
 {
     public class Hotel
@@ -9,8 +11,7 @@ namespace HotelsBooking.DAL.Entities
         public string City { get; set; }
         public string Street { get; set; }
         public string HouseNumber { get; set; }
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
+        public Point Location { get; set; }
         public int StarRating { get; set; }
         public double ReviewRating {  get; set; }
         public string Description { get; set; }

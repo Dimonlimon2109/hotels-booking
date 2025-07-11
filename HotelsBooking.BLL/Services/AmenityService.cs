@@ -4,6 +4,7 @@ using FluentValidation;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
+using HotelsBooking.DAL.Repositories;
 
 namespace HotelsBooking.BLL.Services
 {
@@ -39,6 +40,7 @@ namespace HotelsBooking.BLL.Services
 
             var amenity = _mapper.Map<Amenity>(creatingAmenity);
             await _amenityRepository.AddAsync(amenity, ct);
+            await _amenityRepository.SaveChangesAsync(ct);
         }
 
         public async Task<IEnumerable<AmenityDTO>> GetAllAmenitiesAsync(CancellationToken ct = default)
@@ -57,6 +59,7 @@ namespace HotelsBooking.BLL.Services
         public async Task DeleteAmenityAsync(int id, CancellationToken ct = default)
         {
             await _amenityRepository.DeleteAsync(id, ct);
+            await _amenityRepository.SaveChangesAsync(ct);
         }
 
         public async Task UpdateAmenityAsync(int id, UpdateAmenityDTO updatingAmenity, CancellationToken ct = default)
@@ -72,7 +75,8 @@ namespace HotelsBooking.BLL.Services
                 ?? throw new NullReferenceException("Удобство не найдено");
 
             amenity.Name = updatingAmenity.Name;
-            await _amenityRepository.UpdateAsync(amenity, ct);
+            _amenityRepository.Update(amenity);
+            await _amenityRepository.SaveChangesAsync(ct);
         }
     }
 }

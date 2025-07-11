@@ -65,6 +65,8 @@ namespace HotelsBooking.BLL.Services
 
             var room = _mapper.Map<Room>(creatingRoom);
             await _roomRepository.AddAsync(room, ct);
+            await _roomRepository.SaveChangesAsync(ct);
+
             return _mapper.Map<RoomDTO>(room);
         }
 
@@ -99,6 +101,7 @@ namespace HotelsBooking.BLL.Services
                 RoomId = roomItem.Id,
             };
             await _roomPhotoRepository.AddAsync(roomPhoto);
+            await _roomRepository.SaveChangesAsync(ct);
         }
 
         public async Task DeleteRoomPhotoAsync(int roomId, int photoId, string userEmail, CancellationToken ct = default)
@@ -117,6 +120,7 @@ namespace HotelsBooking.BLL.Services
 
             await _imageService.DeleteImageAsync(deletingPhoto.FilePath);
             await _roomPhotoRepository.DeleteAsync(photoId, ct);
+            await _roomRepository.SaveChangesAsync(ct);
         }
 
         public async Task DeleteRoomAsync(int id, string userEmail, CancellationToken ct = default)
@@ -131,6 +135,7 @@ namespace HotelsBooking.BLL.Services
                 throw new SecurityException("Номер отеля может удалить только владелец");
             }
             await _roomRepository.DeleteAsync(id, ct);
+            await _roomRepository.SaveChangesAsync(ct);
         }
 
         public async Task UpdateRoomAsync(int roomId, string userEmail, UpdateRoomDTO updatingRoom, CancellationToken ct = default)
@@ -154,7 +159,9 @@ namespace HotelsBooking.BLL.Services
             roomItem.PricePerNight = updatingRoom.PricePerNight;
             roomItem.Capacity = updatingRoom.Capacity;
             roomItem.Type = updatingRoom.Type;
-            await _roomRepository.UpdateAsync(roomItem);
+            _roomRepository.Update(roomItem);
+
+            await _roomRepository.SaveChangesAsync(ct);
         }
     }
 }
