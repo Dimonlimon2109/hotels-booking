@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace HotelsBooking.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/reviews")]
     [ApiController]
     public class ReviewController : ControllerBase
     {

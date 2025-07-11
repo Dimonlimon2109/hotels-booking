@@ -12,7 +12,7 @@ using System.Security.Claims;
 
 namespace HotelsBooking.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/rooms")]
     [ApiController]
     public class RoomController : ControllerBase
     {

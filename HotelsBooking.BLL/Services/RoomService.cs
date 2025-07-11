@@ -212,7 +212,8 @@ namespace HotelsBooking.BLL.Services
             roomItem.PricePerNight = updatingRoom.PricePerNight;
             roomItem.Capacity = updatingRoom.Capacity;
             roomItem.Type = Enum.Parse<RoomType>(updatingRoom.Type, true);
-            await _roomRepository.UpdateAsync(roomItem);
+            _roomRepository.Update(roomItem);
+            await _roomRepository.SaveChangesAsync(ct);
         }
     }
 }
