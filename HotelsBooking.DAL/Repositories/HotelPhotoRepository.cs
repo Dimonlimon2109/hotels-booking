@@ -5,9 +5,7 @@ using HotelsBooking.DAL.Interfaces;
 
 namespace HotelsBooking.DAL.Repositories
 {
-    public class HotelPhotoRepository : Repository<HotelPhoto>, IHotelPhotoRepository
+    public class HotelPhotoRepository(ApplicationContext context) : Repository<HotelPhoto>(context), IHotelPhotoRepository
     {
-        public HotelPhotoRepository(ApplicationContext context) : base(context) { }
-
     }
 }

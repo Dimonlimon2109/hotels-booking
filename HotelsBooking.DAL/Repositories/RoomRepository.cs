@@ -7,10 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelsBooking.DAL.Repositories
 {
-    public class RoomRepository: Repository<Room>, IRoomRepository
+    public class RoomRepository(ApplicationContext context) : Repository<Room>(context), IRoomRepository
     {
-        public RoomRepository(ApplicationContext context) : base(context) { }
-
         public async Task<Room?> GetRoomAsync(int roomId, CancellationToken ct = default)
         {
             return await _dbSet

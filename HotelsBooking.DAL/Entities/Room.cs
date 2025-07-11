@@ -12,5 +12,6 @@ namespace HotelsBooking.DAL.Entities
         public int Capacity { get; set; }
         public Hotel Hotel { get; set; }
         public ICollection<RoomPhoto> Photos { get; set; }
+        public ICollection<Booking> Bookings { get; set; }
     }
 }
