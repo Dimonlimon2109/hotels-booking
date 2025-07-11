@@ -1,7 +1,7 @@
 ﻿
 namespace HotelsBooking.BLL.Interfaces
 {
-    public interface IImagePath
+    public interface IRootPath
     {
         public string RootPath { get; }
     }

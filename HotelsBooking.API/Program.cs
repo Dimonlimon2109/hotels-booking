@@ -66,6 +66,7 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddMaps(typeof(RoomService).Assembly);
     cfg.AddMaps(typeof(AmenityService).Assembly);
     cfg.AddMaps(typeof(ReviewService).Assembly);
+    cfg.AddMaps(typeof(BookingService).Assembly);
 });
 
 builder.Services.AddScoped<AuthService>();
@@ -76,8 +77,11 @@ builder.Services.AddScoped<ImageService>();
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<AmenityService>();
 builder.Services.AddScoped<ReviewService>();
+builder.Services.AddScoped<BookingService>();
+builder.Services.AddScoped<PdfGenerator>();
+builder.Services.AddScoped<SmtpEmailSender>();
 
-builder.Services.AddSingleton<IImagePath, WebHostAdapter>();
+builder.Services.AddSingleton<IRootPath, WebHostAdapter>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IHotelRepository, HotelRepository>();
@@ -99,6 +103,9 @@ builder.Services.AddScoped<IValidator<CreateAmenityDTO>, CreateAmenityDTOValidat
 builder.Services.AddScoped<IValidator<UpdateAmenityDTO>, UpdateAmenityDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateReviewDTO>, CreateReviewDTOValidator>();
 builder.Services.AddScoped<IValidator<UpdateReviewDTO>, UpdateReviewDTOValidator>();
+builder.Services.AddScoped<IValidator<CreateBookingDTO>, CreateBookingDTOValidator>();
+builder.Services.AddScoped<IValidator<UpdateBookingStatusDTO>, UpdateBookingStatusDTOValidator>();
+
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JWT"));
 var jwtOptions = builder.Configuration.GetSection("JWT").Get<JwtOptions>();

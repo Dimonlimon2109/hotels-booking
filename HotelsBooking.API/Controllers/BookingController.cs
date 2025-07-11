@@ -1,0 +1,77 @@
+﻿using AutoMapper;
+using HotelsBooking.API.Constants;
+using HotelsBooking.API.Models;
+using HotelsBooking.API.ViewModels;
+using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Models;
+using HotelsBooking.BLL.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace HotelsBooking.API.Controllers
+{
+    [Route("api/bookings")]
+    [ApiController]
+    public class BookingController : ControllerBase
+    {
+        private readonly BookingService _bookingService;
+        private readonly IMapper _mapper;
+
+        public BookingController(BookingService bookingService, IMapper mapper)
+        {
+            _bookingService = bookingService;
+            _mapper = mapper;
+        }
+
+        [Authorize(Policy = Policies.Client)]
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateBookingModel creatingBooking, CancellationToken ct = default)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var creatingBookingDTO = _mapper.Map<CreateBookingDTO>(creatingBooking);
+
+            await _bookingService.CreateBookingAsync(creatingBookingDTO, userEmail, ct);
+
+            return Created();
+        }
+
+        [Authorize]
+        [HttpGet("users/{userId:int}")]
+        public async Task<IActionResult> GetAllByUserId(int userId, CancellationToken ct = default)
+        {
+            var bookingsDTO = await _bookingService.GetUserBookingsAsync(userId, ct);
+            return Ok(bookingsDTO.Select(bd => _mapper.Map<BookingViewModel>(bd)));
+        }
+
+        [Authorize]
+        [HttpGet("{bookingId:int}")]
+        public async Task<IActionResult> GetById(int bookingId, CancellationToken ct = default)
+        {
+            var bookingDTO = await _bookingService.GetBookingByIdAsync(bookingId, ct);
+            return Ok(_mapper.Map<BookingViewModel>(bookingDTO));
+        }
+
+        [Authorize(Roles = $"{Roles.HotelOwner},{Roles.Client}")]
+        [HttpPut("{bookingId:int}")]
+        public async Task<IActionResult> UpdateBookingStatus(int bookingId, UpdateBookingStatusModel status, CancellationToken ct = default)
+        {
+            var updatingStatusDTO = _mapper.Map<UpdateBookingStatusDTO>(status);
+
+            await _bookingService.UpdateBookingStatusAsync(bookingId, updatingStatusDTO, ct);
+
+            return Ok();
+        }
+
+        [HttpPost("rooms/{roomId:int}/availability")]
+        public async Task<IActionResult> CheckAvailability(
+            int roomId,
+            BookingDatesModel bookingDates,
+            CancellationToken ct)
+        {
+            var isAvailable = await _bookingService.IsRoomAvailableAsync(roomId, bookingDates, ct);
+            return Ok(new { isAvailable });
+        }
+    }
+}

@@ -1,20 +1,18 @@
 ﻿
 using HotelsBooking.DAL.Constants;
 
-namespace HotelsBooking.DAL.Entities
+namespace HotelsBooking.BLL.DTO
 {
-    public class Booking
+    public class BookingDTO
     {
         public int Id { get; set; }
-        public int RoomId { get; set; }
-        public int UserId { get; set; }
+        public RoomDTO Room { get; set; }
+        public UserDTO User { get; set; }
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
         public int Adults { get; set; }
         public int Children { get; set; }
         public decimal TotalPrice { get; set; }
         public BookingStatus Status { get; set; }
-        public User User { get; set; }
-        public Room Room { get; set; }
     }
 }

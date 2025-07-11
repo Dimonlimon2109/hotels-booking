@@ -5,8 +5,8 @@ namespace HotelsBooking.BLL.Services
 {
     public class ImageService
     {
-        private readonly IImagePath _rootPath;
-        public ImageService(IImagePath rootPath)
+        private readonly IRootPath _rootPath;
+        public ImageService(IRootPath rootPath)
         {
             _rootPath = rootPath;
         }
