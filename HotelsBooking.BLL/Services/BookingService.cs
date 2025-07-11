@@ -77,6 +77,7 @@ namespace HotelsBooking.BLL.Services
 
             var booking = _mapper.Map<Booking>(creatingBooking);
             booking.UserId = user.Id;
+            booking.TotalPrice = bookingRoom.PricePerNight * booking.Adults + bookingRoom.PricePerNight + booking.Children;
             await _bookingRepository.AddAsync(booking);
             await _bookingRepository.SaveChangesAsync(ct);
         }
