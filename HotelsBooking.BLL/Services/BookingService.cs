@@ -6,7 +6,6 @@ using HotelsBooking.BLL.Models;
 using HotelsBooking.DAL.Constants;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
-using System.Linq;
 using System.Security;
 
 namespace HotelsBooking.BLL.Services
@@ -77,7 +76,7 @@ namespace HotelsBooking.BLL.Services
 
             var booking = _mapper.Map<Booking>(creatingBooking);
             booking.UserId = user.Id;
-            booking.TotalPrice = bookingRoom.PricePerNight * booking.Adults + bookingRoom.PricePerNight + booking.Children;
+            booking.TotalPrice = bookingRoom.PricePerNight * booking.Adults + bookingRoom.PricePerNight * booking.Children;
             await _bookingRepository.AddAsync(booking);
             await _bookingRepository.SaveChangesAsync(ct);
         }
