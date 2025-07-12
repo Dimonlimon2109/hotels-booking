@@ -80,6 +80,17 @@ namespace HotelsBooking.BLL.Services
             }
         }
 
+        public async Task RefundPaymentAsync(string paymentIntentId, CancellationToken ct = default)
+        {
+            var service = new RefundService();
+
+            var options = new RefundCreateOptions
+            {
+                PaymentIntent = paymentIntentId
+            };
+
+            await service.CreateAsync(options, cancellationToken: ct);
+        }
 
         public Event ConstructWebhookEvent(string json, string stripeSignature)
         {

@@ -83,6 +83,12 @@ namespace HotelsBooking.BLL.Services
             var booking = _mapper.Map<Booking>(creatingBooking);
             booking.UserId = user.Id;
             booking.TotalPrice = bookingRoom.PricePerNight * booking.Adults + bookingRoom.PricePerNight * booking.Children;
+
+            var jobId = BackgroundJob.Schedule<IBookingService>(
+                x => x.CancelUnpaidBookingAsync(booking.Id, CancellationToken.None),
+                TimeSpan.FromMinutes(30));
+
+            booking.CancellationJobId = jobId;
             await _bookingRepository.AddAsync(booking);
             await _bookingRepository.SaveChangesAsync(ct);
 
@@ -91,10 +97,6 @@ namespace HotelsBooking.BLL.Services
                 booking.TotalPrice,
                 booking.Id.ToString(),
                 ct);
-
-            BackgroundJob.Schedule<IBookingService>(
-                x => x.CancelBookingAsync(booking.Id, CancellationToken.None),
-                TimeSpan.FromMinutes(30));
 
             return checkoutSession.Url;
         }
@@ -116,43 +118,21 @@ namespace HotelsBooking.BLL.Services
             return _mapper.Map<BookingDTO>(booking);
         }
 
-        public async Task UpdateBookingStatusAsync(int id,
-            UpdateBookingStatusDTO updatingBookingStatus,
-            CancellationToken ct = default)
+        public async Task CancelBookingAsync(int bookingId, string cancellationReason, CancellationToken ct = default)
         {
-            var validationResult = _updatingBookingStatusValidator.Validate(updatingBookingStatus);
-
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
-            if (!Enum.TryParse<BookingStatus>(updatingBookingStatus.Status, out var status))
-            {
-                throw new ArgumentException("Некорректный статус бронирования");
-            }
-
-            var booking = await _bookingRepository.GetByIdAsync(id, ct)
+            var booking = await _bookingRepository.GetByIdAsync(bookingId, ct)
                 ?? throw new NullReferenceException("Бронирование не найдено");
 
-            var allowedTransitions = new Dictionary<BookingStatus, BookingStatus[]>
+            if (booking.Status == BookingStatus.Confirmed)
             {
-        { BookingStatus.Pending, new[] { BookingStatus.Confirmed, BookingStatus.Cancelled } },
-        { BookingStatus.Confirmed, new[] { BookingStatus.CheckedIn, BookingStatus.Cancelled } },
-        { BookingStatus.CheckedIn, new[] { BookingStatus.CheckedOut } },
-        { BookingStatus.CheckedOut, Array.Empty<BookingStatus>() },
-        { BookingStatus.Cancelled, Array.Empty<BookingStatus>() }
-            };
+                if (DateTime.UtcNow >= booking.CheckInDate)
+                    throw new InvalidOperationException("Нельзя отменить бронирование после даты заезда");
 
-            if (!allowedTransitions.TryGetValue(booking.Status, out var validStatuses) ||
-                !validStatuses.ToList().Contains(status))
-            {
-                throw new InvalidOperationException(
-                    $"Переход из статуса {booking.Status.ToString()} в {updatingBookingStatus.Status} недопустим.");
+                await _stripeService.RefundPaymentAsync(booking.PaymentIntentId, ct);
             }
 
-            booking.Status = status;
-
+            booking.CancellationReason = cancellationReason;
+            booking.Status = BookingStatus.Cancelled;
             _bookingRepository.Update(booking);
             await _bookingRepository.SaveChangesAsync(ct);
         }
@@ -173,6 +153,12 @@ namespace HotelsBooking.BLL.Services
             var booking = await _bookingRepository.GetByIdAsync(bookingId, ct)
                 ?? throw new NullReferenceException("Бронирование не найдено");
 
+            if (!string.IsNullOrEmpty(booking.CancellationJobId))
+            {
+                BackgroundJob.Delete(booking.CancellationJobId);
+            }
+
+            booking.CancellationJobId = null;
             booking.Status = BookingStatus.Confirmed;
             _bookingRepository.Update(booking);
             await _bookingRepository.SaveChangesAsync(ct);
@@ -195,10 +181,11 @@ namespace HotelsBooking.BLL.Services
             );
         }
 
-        public async Task CancelBookingAsync(int bookingId, CancellationToken ct = default)
+        public async Task CancelUnpaidBookingAsync(int bookingId, CancellationToken ct = default)
         {
-            var booking = await _bookingRepository.GetByIdAsync(bookingId, ct);
-            if (booking == null || booking.Status != BookingStatus.Pending || booking.Status == BookingStatus.Cancelled)
+            var booking = await _bookingRepository.GetByIdAsync(bookingId, ct)
+                ?? throw new Exception("Бронирование не найдено");
+            if (booking.Status != BookingStatus.Pending || booking.Status == BookingStatus.Cancelled)
                 return;
 
             booking.Status = BookingStatus.Cancelled;

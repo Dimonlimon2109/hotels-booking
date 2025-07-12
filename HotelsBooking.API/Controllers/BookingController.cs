@@ -57,11 +57,10 @@ namespace HotelsBooking.API.Controllers
 
         [Authorize(Roles = $"{Roles.HotelOwner},{Roles.Client}")]
         [HttpPut("{bookingId:int}")]
-        public async Task<IActionResult> UpdateBookingStatus(int bookingId, UpdateBookingStatusModel status, CancellationToken ct = default)
+        public async Task<IActionResult> CancelBooking(int bookingId, string cancellationReason, CancellationToken ct = default)
         {
-            var updatingStatusDTO = _mapper.Map<UpdateBookingStatusDTO>(status);
 
-            await _bookingService.UpdateBookingStatusAsync(bookingId, updatingStatusDTO, ct);
+            await _bookingService.CancelBookingAsync(bookingId, cancellationReason, ct);
 
             return Ok();
         }

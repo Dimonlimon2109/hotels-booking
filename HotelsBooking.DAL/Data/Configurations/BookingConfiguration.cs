@@ -40,6 +40,19 @@ namespace HotelsBooking.DAL.Data.Configurations
                    .WithMany(u => u.Bookings)
                    .HasForeignKey(b => b.UserId)
                    .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Property(b => b.PaymentIntentId)
+                    .HasMaxLength(100)
+                    .IsRequired(false);
+
+            builder.Property(b => b.CancellationReason)
+                   .HasMaxLength(500)
+                   .IsUnicode()
+                   .IsRequired(false);
+
+            builder.Property(b => b.CancellationJobId)
+                   .HasMaxLength(100)
+                   .IsRequired(false);
         }
     }
 }

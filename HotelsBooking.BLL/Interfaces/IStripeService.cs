@@ -8,5 +8,6 @@ namespace HotelsBooking.BLL.Interfaces
         Event ConstructWebhookEvent(string json, string stripeSignature);
         Task<Session> CreateBookingCheckoutSessionAsync(string userEmail, decimal amount, string bookingId, CancellationToken ct = default);
         int HandleBookingWebhook(string json, string stripeSignature);
+        Task RefundPaymentAsync(string paymentIntentId, CancellationToken ct = default);
     }
 }
