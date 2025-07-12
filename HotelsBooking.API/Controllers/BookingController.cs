@@ -18,12 +18,14 @@ namespace HotelsBooking.API.Controllers
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
+        private readonly IStripeService _stripeSerice;
         private readonly IMapper _mapper;
 
-        public BookingController(IBookingService bookingService, IMapper mapper)
+        public BookingController(IBookingService bookingService, IMapper mapper, IStripeService stripeSerice)
         {
             _bookingService = bookingService;
             _mapper = mapper;
+            _stripeSerice = stripeSerice;
         }
 
         [Authorize(Policy = Policies.Client)]
@@ -33,9 +35,8 @@ namespace HotelsBooking.API.Controllers
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             var creatingBookingDTO = _mapper.Map<CreateBookingDTO>(creatingBooking);
 
-            await _bookingService.CreateBookingAsync(creatingBookingDTO, userEmail, ct);
-
-            return Created();
+            var checkoutUrl = await _bookingService.CreateBookingAsync(creatingBookingDTO, userEmail, ct);
+            return Ok(checkoutUrl);
         }
 
         [Authorize]
@@ -73,6 +74,18 @@ namespace HotelsBooking.API.Controllers
         {
             var isAvailable = await _bookingService.IsRoomAvailableAsync(roomId, bookingDates, ct);
             return Ok(new { isAvailable });
+        }
+
+        [HttpPost("payment/webhook")]
+        public async Task<IActionResult> BookingPaymentWebook(CancellationToken ct = default)
+        {
+            using var reader = new StreamReader(Request.Body);
+            var json = await reader.ReadToEndAsync();
+            var signature = Request.Headers["Stripe-Signature"];
+
+            await _bookingService.ConfirmBookingAsync(json, signature, ct);
+
+            return Ok();
         }
     }
 }

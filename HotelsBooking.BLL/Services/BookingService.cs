@@ -8,6 +8,7 @@ using HotelsBooking.DAL.Constants;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
 using System.Security;
+using System.Text.Json.Nodes;
 
 namespace HotelsBooking.BLL.Services
 {
@@ -21,6 +22,7 @@ namespace HotelsBooking.BLL.Services
         private readonly IValidator<UpdateBookingStatusDTO> _updatingBookingStatusValidator;
         private readonly IPdfGenerator _pdfGenerator;
         private readonly ISmtpEmailSender _emailSender;
+        private readonly IStripeService _stripeService;
 
         public BookingService(
             IBookingRepository bookingRepository,
@@ -30,7 +32,8 @@ namespace HotelsBooking.BLL.Services
             IValidator<CreateBookingDTO> creatingBookingValidator,
             IValidator<UpdateBookingStatusDTO> updatingBookingStatusValidator,
             IPdfGenerator pdfGenerator,
-            ISmtpEmailSender emailSender
+            ISmtpEmailSender emailSender,
+            IStripeService stripeService
             )
         {
             _bookingRepository = bookingRepository;
@@ -41,9 +44,10 @@ namespace HotelsBooking.BLL.Services
             _updatingBookingStatusValidator = updatingBookingStatusValidator;
             _pdfGenerator = pdfGenerator;
             _emailSender = emailSender;
+            _stripeService = stripeService;
         }
 
-        public async Task CreateBookingAsync(CreateBookingDTO creatingBooking, string userEmail, CancellationToken ct = default)
+        public async Task<string> CreateBookingAsync(CreateBookingDTO creatingBooking, string userEmail, CancellationToken ct = default)
         {
             var validationResult = _creatingBookingValidator.Validate(creatingBooking);
 
@@ -80,6 +84,14 @@ namespace HotelsBooking.BLL.Services
             booking.TotalPrice = bookingRoom.PricePerNight * booking.Adults + bookingRoom.PricePerNight * booking.Children;
             await _bookingRepository.AddAsync(booking);
             await _bookingRepository.SaveChangesAsync(ct);
+
+            var checkoutSession = await _stripeService.CreateBookingCheckoutSessionAsync(
+                user.Email,
+                booking.TotalPrice,
+                booking.Id.ToString(),
+                ct);
+
+            return checkoutSession.Url;
         }
 
         public async Task<IEnumerable<BookingDTO>> GetUserBookingsAsync(int userId, CancellationToken ct = default)
@@ -138,11 +150,6 @@ namespace HotelsBooking.BLL.Services
 
             _bookingRepository.Update(booking);
             await _bookingRepository.SaveChangesAsync(ct);
-
-            if (booking.Status == BookingStatus.Confirmed)
-            {
-                await NotifyUserAsync(booking);
-            }
         }
 
         public async Task<bool> IsRoomAvailableAsync(int roomId, BookingDatesModel bookingDates, CancellationToken ct = default)
@@ -153,8 +160,18 @@ namespace HotelsBooking.BLL.Services
             return await _bookingRepository.IsRoomAvailableAsync(roomId, bookingDates.CheckInDate, bookingDates.CheckOutDate, ct);
         }
 
-        public async Task NotifyUserAsync(Booking booking, CancellationToken ct = default)
+        public async Task ConfirmBookingAsync(string json, string signature, CancellationToken ct = default)
         {
+
+            var bookingId = _stripeService.HandleBookingWebhook(json, signature);
+
+            var booking = await _bookingRepository.GetByIdAsync(bookingId, ct)
+                ?? throw new NullReferenceException("Бронирование не найдено");
+
+            booking.Status = BookingStatus.Confirmed;
+            _bookingRepository.Update(booking);
+            await _bookingRepository.SaveChangesAsync(ct);
+
             var message = $@"<p>Здравствуйте, {booking.User?.UserName}!</p>
                              <p>Вы успешно забронировали номер в отеле.</p>
                              <p>Период: <b>{booking.CheckInDate:dd.MM.yyyy} – {booking.CheckOutDate:dd.MM.yyyy}</b></p>

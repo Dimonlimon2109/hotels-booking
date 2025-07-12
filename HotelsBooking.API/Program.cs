@@ -80,6 +80,7 @@ builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IPdfGenerator, PdfGenerator>();
 builder.Services.AddScoped<ISmtpEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<IStripeService, StripeService>();
 
 builder.Services.AddSingleton<IRootPath, WebHostAdapter>();
 
