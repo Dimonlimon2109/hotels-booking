@@ -2,6 +2,7 @@
 using HotelsBooking.API.Models;
 using HotelsBooking.API.ViewModels;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +12,10 @@ namespace HotelsBooking.API.Controllers
     [ApiController]
     public class AmenityController : ControllerBase
     {
-        private readonly AmenityService _amenityService;
+        private readonly IAmenityService _amenityService;
         private readonly IMapper _mapper;
 
-        public AmenityController(AmenityService amenityService, IMapper mapper)
+        public AmenityController(IAmenityService amenityService, IMapper mapper)
         {
             _amenityService = amenityService;
             _mapper = mapper;

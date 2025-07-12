@@ -10,7 +10,7 @@ using iText.Layout.Element;
 
 namespace HotelsBooking.BLL.Services
 {
-    public class PdfGenerator
+    public class PdfGenerator : IPdfGenerator
     {
         private readonly IRootPath _rootPath;
         public PdfGenerator(IRootPath rootPath)
@@ -27,7 +27,7 @@ namespace HotelsBooking.BLL.Services
             var fontPath = Path.Combine(_rootPath.RootPath, "fonts", "arial.ttf");
             var font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
             document.SetFont(font);
-            
+
             var titleParagraph = new Paragraph($"Подтверждение брони #{booking.Id}")
                 .SetFontSize(18);
             document.Add(titleParagraph);

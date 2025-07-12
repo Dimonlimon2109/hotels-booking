@@ -3,7 +3,7 @@ using HotelsBooking.BLL.Interfaces;
 
 namespace HotelsBooking.BLL.Services
 {
-    public class ImageService
+    public class ImageService : IImageService
     {
         private readonly IRootPath _rootPath;
         public ImageService(IRootPath rootPath)
@@ -32,7 +32,7 @@ namespace HotelsBooking.BLL.Services
 
         public Task DeleteImageAsync(string imagePath)
         {
-            var filePath = Path.Combine (_rootPath.RootPath, imagePath);
+            var filePath = Path.Combine(_rootPath.RootPath, imagePath);
 
             if (File.Exists(filePath))
                 File.Delete(filePath);

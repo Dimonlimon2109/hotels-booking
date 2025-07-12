@@ -1,7 +1,9 @@
 ﻿
+using HotelsBooking.BLL.Interfaces;
+
 namespace HotelsBooking.BLL.Services
 {
-    public class PasswordService
+    public class PasswordService : IPasswordService
     {
         public string HashPassword(string password)
         {

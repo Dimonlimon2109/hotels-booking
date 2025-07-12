@@ -2,6 +2,7 @@
 using AutoMapper;
 using FluentValidation;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
 using HotelsBooking.DAL.Repositories;
@@ -10,22 +11,22 @@ using System.Security.Claims;
 
 namespace HotelsBooking.BLL.Services
 {
-   public class AuthService
+    public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IValidator<RegisterDTO> _registeringUserValidator;
         private readonly IValidator<LoginDTO> _loginingUserValidator;
-        private readonly TokensService _tokensService;
-        private readonly PasswordService _passwordService;
+        private readonly ITokensService _tokensService;
+        private readonly IPasswordService _passwordService;
 
         public AuthService(
             IUserRepository userRepository,
             IMapper mapper,
             IValidator<RegisterDTO> registeringUserValidator,
             IValidator<LoginDTO> loginingUserValidator,
-            TokensService tokensService,
-            PasswordService passwordService
+            ITokensService tokensService,
+            IPasswordService passwordService
             )
         {
             _userRepository = userRepository;
@@ -75,7 +76,7 @@ namespace HotelsBooking.BLL.Services
             await _userRepository.SaveChangesAsync(ct);
 
             var accessToken = _tokensService.GenerateAccessToken(user);
-            return new TokensDTO { AccessToken = accessToken, RefreshToken = refreshToken.RefreshToken};
+            return new TokensDTO { AccessToken = accessToken, RefreshToken = refreshToken.RefreshToken };
         }
 
         public async Task<TokensDTO> RefreshAsync(TokensDTO tokens, CancellationToken ct = default)

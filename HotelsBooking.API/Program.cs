@@ -69,17 +69,17 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddMaps(typeof(BookingService).Assembly);
 });
 
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<TokensService>();
-builder.Services.AddScoped<PasswordService>();
-builder.Services.AddScoped<HotelService>();
-builder.Services.AddScoped<ImageService>();
-builder.Services.AddScoped<RoomService>();
-builder.Services.AddScoped<AmenityService>();
-builder.Services.AddScoped<ReviewService>();
-builder.Services.AddScoped<BookingService>();
-builder.Services.AddScoped<PdfGenerator>();
-builder.Services.AddScoped<SmtpEmailSender>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITokensService, TokensService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<IHotelService, HotelService>();
+builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IAmenityService, AmenityService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IPdfGenerator, PdfGenerator>();
+builder.Services.AddScoped<ISmtpEmailSender, SmtpEmailSender>();
 
 builder.Services.AddSingleton<IRootPath, WebHostAdapter>();
 

@@ -1,11 +1,12 @@
 ﻿
+using HotelsBooking.BLL.Interfaces;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 
 namespace HotelsBooking.BLL.Services
 {
-    public class SmtpEmailSender
+    public class SmtpEmailSender : ISmtpEmailSender
     {
         private readonly IConfiguration _configuration;
 
@@ -38,7 +39,7 @@ namespace HotelsBooking.BLL.Services
             await smtp.ConnectAsync(_configuration["Email:Smtp"], int.Parse(_configuration["Email:Port"]), false, ct);
             await smtp.AuthenticateAsync(_configuration["Email:Username"], _configuration["Email:Password"], ct);
             await smtp.SendAsync(emailMessage, ct);
-            await smtp.DisconnectAsync(true, ct); 
+            await smtp.DisconnectAsync(true, ct);
         }
 
     }

@@ -2,6 +2,7 @@
 using AutoMapper;
 using FluentValidation;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Models;
 using HotelsBooking.DAL.Constants;
 using HotelsBooking.DAL.Entities;
@@ -10,7 +11,7 @@ using System.Security;
 
 namespace HotelsBooking.BLL.Services
 {
-    public class BookingService
+    public class BookingService : IBookingService
     {
         private readonly IBookingRepository _bookingRepository;
         private readonly IRoomRepository _roomRepository;
@@ -18,8 +19,8 @@ namespace HotelsBooking.BLL.Services
         private readonly IMapper _mapper;
         private readonly IValidator<CreateBookingDTO> _creatingBookingValidator;
         private readonly IValidator<UpdateBookingStatusDTO> _updatingBookingStatusValidator;
-        private readonly PdfGenerator _pdfGenerator;
-        private readonly SmtpEmailSender _emailSender;
+        private readonly IPdfGenerator _pdfGenerator;
+        private readonly ISmtpEmailSender _emailSender;
 
         public BookingService(
             IBookingRepository bookingRepository,
@@ -28,8 +29,8 @@ namespace HotelsBooking.BLL.Services
             IMapper mapper,
             IValidator<CreateBookingDTO> creatingBookingValidator,
             IValidator<UpdateBookingStatusDTO> updatingBookingStatusValidator,
-            PdfGenerator pdfGenerator,
-            SmtpEmailSender emailSender
+            IPdfGenerator pdfGenerator,
+            ISmtpEmailSender emailSender
             )
         {
             _bookingRepository = bookingRepository;
@@ -57,7 +58,7 @@ namespace HotelsBooking.BLL.Services
             var user = await _userRepository.GetByEmailAsync(userEmail, ct)
                 ?? throw new SecurityException("Пользователь не найден");
 
-            if(bookingRoom.Capacity != creatingBooking.Adults + creatingBooking.Children)
+            if (bookingRoom.Capacity != creatingBooking.Adults + creatingBooking.Children)
             {
                 throw new ArgumentException("Количество взрослых и детей должно быть равно количеству мест в номере");
             }
@@ -109,7 +110,7 @@ namespace HotelsBooking.BLL.Services
                 throw new ValidationException(validationResult.Errors);
             }
 
-            if(!Enum.TryParse<BookingStatus>(updatingBookingStatus.Status, out var status))
+            if (!Enum.TryParse<BookingStatus>(updatingBookingStatus.Status, out var status))
             {
                 throw new ArgumentException("Некорректный статус бронирования");
             }
@@ -138,7 +139,7 @@ namespace HotelsBooking.BLL.Services
             _bookingRepository.Update(booking);
             await _bookingRepository.SaveChangesAsync(ct);
 
-            if(booking.Status == BookingStatus.Confirmed)
+            if (booking.Status == BookingStatus.Confirmed)
             {
                 await NotifyUserAsync(booking);
             }
