@@ -153,6 +153,8 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+app.UseHangfireDashboard("/hangfire");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
