@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
 using FluentValidation;
+using Hangfire;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Models;
@@ -90,6 +91,10 @@ namespace HotelsBooking.BLL.Services
                 booking.TotalPrice,
                 booking.Id.ToString(),
                 ct);
+
+            BackgroundJob.Schedule<IBookingService>(
+                x => x.CancelBookingAsync(booking.Id, CancellationToken.None),
+                TimeSpan.FromMinutes(30));
 
             return checkoutSession.Url;
         }
@@ -188,6 +193,17 @@ namespace HotelsBooking.BLL.Services
                 pdfAttachment,
                 ct
             );
+        }
+
+        public async Task CancelBookingAsync(int bookingId, CancellationToken ct = default)
+        {
+            var booking = await _bookingRepository.GetByIdAsync(bookingId, ct);
+            if (booking == null || booking.Status != BookingStatus.Pending || booking.Status == BookingStatus.Cancelled)
+                return;
+
+            booking.Status = BookingStatus.Cancelled;
+            _bookingRepository.Update(booking);
+            await _bookingRepository.SaveChangesAsync(ct);
         }
     }
 }
