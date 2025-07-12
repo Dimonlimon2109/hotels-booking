@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Hangfire;
+using Hangfire.PostgreSql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +59,18 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
         o => o.UseNetTopologySuite()
     );
 });
+
+builder.Services.AddHangfire(config =>
+    config.UsePostgreSqlStorage(options =>
+    {
+        var connectionString = builder.Configuration.GetConnectionString(nameof(ApplicationContext))
+            ?? throw new Exception("Missing Postgres connection string");
+
+        options.UseNpgsqlConnection(connectionString);
+    })
+);
+
+builder.Services.AddHangfireServer();
 
 builder.Services.AddAutoMapper(cfg =>
 {
