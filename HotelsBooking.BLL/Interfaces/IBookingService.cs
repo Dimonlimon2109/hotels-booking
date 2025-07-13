@@ -7,7 +7,7 @@ namespace HotelsBooking.BLL.Interfaces
     {
         Task<string> CreateBookingAsync(CreateBookingDTO creatingBooking, string userEmail, CancellationToken ct = default);
         Task<BookingDTO> GetBookingByIdAsync(int id, CancellationToken ct = default);
-        Task<IEnumerable<BookingDTO>> GetUserBookingsAsync(int userId, CancellationToken ct = default);
+        Task<IEnumerable<BookingDTO>> GetUserBookingsAsync(string userEmail, CancellationToken ct = default);
         Task<bool> IsRoomAvailableAsync(int roomId, BookingDatesModel bookingDates, CancellationToken ct = default);
         Task ConfirmBookingAsync(string json, string signature, CancellationToken ct = default);
         Task CancelUnpaidBookingAsync(int bookingId, CancellationToken ct = default);

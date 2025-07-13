@@ -28,7 +28,7 @@ namespace HotelsBooking.API.Controllers
             _stripeSerice = stripeSerice;
         }
 
-        [Authorize(Policy = Policies.Client)]
+        [Authorize(Roles = Roles.Client)]
         [HttpPost]
         public async Task<IActionResult> Create(CreateBookingModel creatingBooking, CancellationToken ct = default)
         {
@@ -42,15 +42,16 @@ namespace HotelsBooking.API.Controllers
             });
         }
 
-        [Authorize]
-        [HttpGet("users/{userId:int}")]
-        public async Task<IActionResult> GetAllByUserId(int userId, CancellationToken ct = default)
+        [Authorize(Roles = Roles.Client)]
+        [HttpGet("my")]
+        public async Task<IActionResult> GetAllByUser(CancellationToken ct = default)
         {
-            var bookingsDTO = await _bookingService.GetUserBookingsAsync(userId, ct);
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var bookingsDTO = await _bookingService.GetUserBookingsAsync(userEmail, ct);
             return Ok(bookingsDTO.Select(bd => _mapper.Map<BookingViewModel>(bd)));
         }
 
-        [Authorize]
+        [Authorize(Roles = $"{Roles.Client},{Roles.HotelOwner}")]
         [HttpGet("{bookingId:int}")]
         public async Task<IActionResult> GetById(int bookingId, CancellationToken ct = default)
         {
@@ -68,6 +69,7 @@ namespace HotelsBooking.API.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpPost("rooms/{roomId:int}/availability")]
         public async Task<IActionResult> CheckAvailability(
             int roomId,

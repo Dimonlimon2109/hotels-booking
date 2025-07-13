@@ -101,12 +101,12 @@ namespace HotelsBooking.BLL.Services
             return checkoutSession.Url;
         }
 
-        public async Task<IEnumerable<BookingDTO>> GetUserBookingsAsync(int userId, CancellationToken ct = default)
+        public async Task<IEnumerable<BookingDTO>> GetUserBookingsAsync(string userEmail, CancellationToken ct = default)
         {
-            var user = await _userRepository.GetByIdAsync(userId, ct)
+            var user = await _userRepository.GetByEmailAsync(userEmail, ct)
                 ?? throw new SecurityException("Пользователь не найден");
 
-            var userBookings = await _bookingRepository.GetBookingsByUserIdAsync(userId, ct);
+            var userBookings = await _bookingRepository.GetBookingsByUserIdAsync(user.Id, ct);
 
             return userBookings.Select(ub => _mapper.Map<BookingDTO>(ub));
         }
