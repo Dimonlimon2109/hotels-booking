@@ -18,11 +18,13 @@ namespace HotelsBooking.API.Controllers
     public class RoomController : ControllerBase
     {
         private readonly IRoomService _roomService;
+        private readonly IBookingService _bookingService;
         private readonly IMapper _mapper;
 
-        public RoomController(IRoomService roomService, IMapper mapper)
+        public RoomController(IRoomService roomService, IBookingService bookingService, IMapper mapper)
         {
             _roomService = roomService;
+            _bookingService = bookingService;
             _mapper = mapper;
         }
 
@@ -44,7 +46,7 @@ namespace HotelsBooking.API.Controllers
             return Ok(roomViewModel);
         }
 
-        [Authorize(Policy = Policies.HotelOwner)]
+        [Authorize(Roles = Roles.HotelOwner)]
         [HttpPost("{id:int}/photo")]
         public async Task<IActionResult> UploadRoomPhoto(int id, IFormFile photo, CancellationToken ct = default)
         {
@@ -54,7 +56,7 @@ namespace HotelsBooking.API.Controllers
             return Ok();
         }
 
-        [Authorize(Policy = Policies.HotelOwner)]
+        [Authorize(Roles = Roles.HotelOwner)]
         [HttpDelete("{roomId:int}/photo/{photoId:int}")]
         public async Task<IActionResult> DeleteRoomPhoto(int roomId, int photoId, CancellationToken ct = default)
         {
@@ -63,7 +65,7 @@ namespace HotelsBooking.API.Controllers
             return NoContent();
         }
 
-        [Authorize(Policy = Policies.HotelOwner)]
+        [Authorize(Roles = Roles.HotelOwner)]
         [HttpDelete("{roomId:int}")]
         public async Task<IActionResult> Delete(int roomId, CancellationToken ct = default)
         {
@@ -72,7 +74,7 @@ namespace HotelsBooking.API.Controllers
             return NoContent();
         }
 
-        [Authorize(Policy = Policies.HotelOwner)]
+        [Authorize(Roles = Roles.HotelOwner)]
         [HttpPut("{roomId:int}")]
         public async Task<IActionResult> Update(int roomId, UpdateRoomModel updatingRoom, CancellationToken ct = default)
         {
@@ -80,6 +82,16 @@ namespace HotelsBooking.API.Controllers
             var updatingRoomDTO = _mapper.Map<UpdateRoomDTO>(updatingRoom);
             await _roomService.UpdateRoomAsync(roomId, userEmail, updatingRoomDTO, ct);
             return Ok();
+        }
+
+        [Authorize(Roles = Roles.HotelOwner)]
+        [HttpGet("{roomId}/bookings")]
+        public async Task<IActionResult> GetBookingsByRoomId (int roomId, CancellationToken ct = default)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var bookingsDTO = await _bookingService.GetBookingsByRoomAsync(roomId, userEmail, ct);
+
+            return Ok(bookingsDTO.Select(bd => _mapper.Map<BookingViewModel>(bd)));
         }
     }
 }

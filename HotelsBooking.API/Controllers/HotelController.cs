@@ -31,7 +31,7 @@ namespace HotelsBooking.API.Controllers
             _mapper = mapper;
         }
 
-        [Authorize(Policy = Policies.HotelOwner)]
+        [Authorize(Roles = Roles.HotelOwner)]
         [HttpPost]
         public async Task<IActionResult> CreateHotel(CreateHotelModel creatingHotel, CancellationToken ct = default)
         {
@@ -79,7 +79,7 @@ namespace HotelsBooking.API.Controllers
             return Ok(_mapper.Map<HotelViewModel>(hotelDTO));
         }
 
-        [Authorize(Policy = Policies.HotelOwner)]
+        [Authorize(Roles = Roles.HotelOwner)]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteHotel(int id, CancellationToken ct)
         {
@@ -88,7 +88,7 @@ namespace HotelsBooking.API.Controllers
             return NoContent();
         }
 
-        [Authorize(Policy = Policies.HotelOwner)]
+        [Authorize(Roles = Roles.HotelOwner)]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateHotel(int id, UpdateHotelModel updatingHotel, CancellationToken ct)
         {
@@ -99,7 +99,7 @@ namespace HotelsBooking.API.Controllers
             return Ok();
         }
 
-        [Authorize(Policy = Policies.HotelOwner)]
+        [Authorize(Roles = Roles.HotelOwner)]
         [HttpGet("my")]
         public async Task<IActionResult> GetMyHotels(CancellationToken ct)
         {
@@ -108,7 +108,7 @@ namespace HotelsBooking.API.Controllers
             return Ok(hotelsDTO.Select(h => _mapper.Map<HotelViewModel>(h)));
         }
 
-        [Authorize(Policy = Policies.HotelOwner)]
+        [Authorize(Roles = Roles.HotelOwner)]
         [HttpPost("{id:int}/photo")]
         public async Task<IActionResult> UploadHotelPhoto(int id, IFormFile photo, CancellationToken ct = default)
         {
@@ -118,7 +118,7 @@ namespace HotelsBooking.API.Controllers
             return Ok();
         }
 
-        [Authorize(Policy = Policies.HotelOwner)]
+        [Authorize(Roles = Roles.HotelOwner)]
         [HttpDelete("{hotelId:int}/photo/{photoId:int}")]
         public async Task<IActionResult> DeleteHotelPhoto(int hotelId, int photoId, CancellationToken ct = default)
         {
