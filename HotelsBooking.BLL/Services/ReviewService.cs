@@ -2,7 +2,7 @@
 using AutoMapper;
 using FluentValidation;
 using HotelsBooking.BLL.DTO;
-using HotelsBooking.DAL.Data.Migrations;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
 using HotelsBooking.DAL.Repositories;
@@ -10,7 +10,7 @@ using System.Security;
 
 namespace HotelsBooking.BLL.Services
 {
-    public class ReviewService
+    public class ReviewService : IReviewService
     {
         private readonly IHotelRepository _hotelRepository;
         private readonly IUserRepository _userRepository;
@@ -111,7 +111,7 @@ namespace HotelsBooking.BLL.Services
             var review = await _reviewRepository.GetByIdAsync(id, ct)
                 ?? throw new NullReferenceException("Отзыв не найден");
 
-            if(review.UserId != user.Id)
+            if (review.UserId != user.Id)
             {
                 throw new SecurityException("Только пользователь, оставивший отзыв, может его изменить");
             }

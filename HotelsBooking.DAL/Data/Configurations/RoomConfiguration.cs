@@ -16,9 +16,9 @@ namespace HotelsBooking.DAL.Data.Configurations
                   .HasForeignKey(r => r.HotelId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Property(r => r.Type)
-                   .IsRequired()
-                   .HasMaxLength(50);
+            builder.Property(x => x.Type)
+                .IsRequired()
+                .HasConversion<int>();
 
             builder.Property(r => r.PricePerNight)
                    .HasColumnType("decimal(10,2)")

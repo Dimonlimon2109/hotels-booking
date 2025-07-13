@@ -1,6 +1,7 @@
 ﻿
 using FluentValidation;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.DAL.Constants;
 
 namespace HotelsBooking.BLL.Validators
 {
@@ -8,17 +9,18 @@ namespace HotelsBooking.BLL.Validators
     {
         public CreateRoomDTOValidator()
         {
-            RuleFor(x => x.HotelId)
+            RuleFor(r => r.HotelId)
                 .GreaterThan(0).WithMessage("HotelId должен быть положительным числом.");
 
-            RuleFor(x => x.Type)
-                .NotEmpty().WithMessage("Тип номера обязателен.")
-                .Length(3, 50).WithMessage("Тип номера должен содержать от 3 до 50 символов.");
 
-            RuleFor(x => x.PricePerNight)
+            RuleFor(r => r.Type)
+                .Must(type => Enum.TryParse<RoomType>(type, out var parsedType))
+                .WithMessage("Недопустимый тип номера отеля.");
+
+            RuleFor(r => r.PricePerNight)
                 .GreaterThan(0).WithMessage("Цена должна быть положительной.");
 
-            RuleFor(x => x.Capacity)
+            RuleFor(r => r.Capacity)
                 .GreaterThan(0).WithMessage("Вместимость должна быть положительной.");
         }
     }

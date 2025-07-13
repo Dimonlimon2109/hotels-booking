@@ -5,10 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelsBooking.DAL.Repositories
 {
-    public class ReviewRepository : Repository<Review>, IReviewRepository
+    public class ReviewRepository(ApplicationContext context) : Repository<Review>(context), IReviewRepository
     {
-        public ReviewRepository(ApplicationContext context): base(context) { }
-
         public async Task<IEnumerable<Review>> GetReviewsWithUserAsync(int hotelId, CancellationToken ct = default)
         {
             return await _dbSet.Include(r => r.User).AsNoTracking().Where(r => r.HotelId == hotelId).ToListAsync(ct);

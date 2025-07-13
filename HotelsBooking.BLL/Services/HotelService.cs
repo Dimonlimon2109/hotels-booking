@@ -10,14 +10,14 @@ using System.Security;
 
 namespace HotelsBooking.BLL.Services
 {
-    public class HotelService
+    public class HotelService : IHotelService
     {
         private readonly IHotelRepository _hotelRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IValidator<CreateHotelDTO> _creatingHotelValidator;
         private readonly IValidator<UpdateHotelDTO> _updatingHotelValidator;
-        private readonly ImageService _imageService;
+        private readonly IImageService _imageService;
         private readonly IHotelPhotoRepository _hotelPhotoRepository;
         private readonly IAmenityRepository _amenityRepository;
 
@@ -28,7 +28,7 @@ namespace HotelsBooking.BLL.Services
             IMapper mapper,
             IValidator<CreateHotelDTO> creatingHotelValidator,
             IValidator<UpdateHotelDTO> updatingHotelValidator,
-            ImageService imageService,
+            IImageService imageService,
             IHotelPhotoRepository hotelPhotoRepository,
             IAmenityRepository amenityRepository
             )
@@ -118,7 +118,7 @@ namespace HotelsBooking.BLL.Services
         {
             var user = await _userRepository.GetByEmailAsync(userEmail, ct);
             var deletingHotel = await _hotelRepository.GetHotelByIdWithOwnerAsync(id, ct);
-            if(user?.Id != deletingHotel?.OwnerId)
+            if (user?.Id != deletingHotel?.OwnerId)
             {
                 throw new SecurityException("Отель может удалить только владелец");
             }
@@ -126,7 +126,7 @@ namespace HotelsBooking.BLL.Services
             await _hotelRepository.SaveChangesAsync(ct);
         }
 
-        public async Task UpdateHotelAsync(int id, string userEmail, UpdateHotelDTO updatingHotel,  CancellationToken ct = default)
+        public async Task UpdateHotelAsync(int id, string userEmail, UpdateHotelDTO updatingHotel, CancellationToken ct = default)
         {
             var hotelItem = await _hotelRepository.GetHotelByIdWithOwnerAsync(id, ct)
                 ?? throw new NullReferenceException("Отель не найден");
@@ -138,7 +138,7 @@ namespace HotelsBooking.BLL.Services
             }
 
             var user = await _userRepository.GetByEmailAsync(userEmail, ct);
-            if(hotelItem.OwnerId != user?.Id)
+            if (hotelItem.OwnerId != user?.Id)
             {
                 throw new SecurityException("Информацию об отеле может изменить только владелец");
             }

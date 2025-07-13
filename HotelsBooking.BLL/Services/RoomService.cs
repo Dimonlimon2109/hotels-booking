@@ -3,7 +3,9 @@ using AutoMapper;
 using FluentValidation;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.BLL.Interfaces;
+using HotelsBooking.BLL.Models;
 using HotelsBooking.BLL.Validators;
+using HotelsBooking.DAL.Constants;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
 using HotelsBooking.DAL.Repositories;
@@ -11,13 +13,13 @@ using System.Security;
 
 namespace HotelsBooking.BLL.Services
 {
-    public class RoomService
+    public class RoomService : IRoomService
     {
         private readonly IUserRepository _userRepository;
         private readonly IHotelRepository _hotelRepository;
         private readonly IRoomRepository _roomRepository;
         private readonly IRoomPhotoRepository _roomPhotoRepository;
-        private readonly ImageService _imageService;
+        private readonly IImageService _imageService;
         private readonly IMapper _mapper;
         private readonly IValidator<CreateRoomDTO> _creatingRoomValidator;
         private readonly IValidator<UpdateRoomDTO> _updatingRoomValidator;
@@ -27,7 +29,7 @@ namespace HotelsBooking.BLL.Services
             IHotelRepository hotelRepository,
             IRoomRepository roomRepository,
             IRoomPhotoRepository roomPhotoRepository,
-            ImageService imageService,
+            IImageService imageService,
             IMapper mapper,
             IValidator<CreateRoomDTO> creatingRoomValidator,
             IValidator<UpdateRoomDTO> updatingRoomValidator
@@ -53,7 +55,7 @@ namespace HotelsBooking.BLL.Services
             var user = await _userRepository.GetByEmailAsync(userEmail);
             var hotel = await _hotelRepository.GetByIdAsync(creatingRoom.HotelId);
 
-            if(hotel == null)
+            if (hotel == null)
             {
                 throw new NullReferenceException("Отель не найден");
             }
@@ -70,10 +72,61 @@ namespace HotelsBooking.BLL.Services
             return _mapper.Map<RoomDTO>(room);
         }
 
-        public async Task<IEnumerable<RoomDTO>> GetRoomsByHotelIdAsync(int hotelId, CancellationToken ct = default)
+        public async Task<IEnumerable<RoomDTO>> GetRoomsByHotelIdAsync(
+            int hotelId,
+            RoomFiltersModel filters,
+            CancellationToken ct = default)
         {
-            var rooms = await _roomRepository.GetRoomsAsync(hotelId, ct);
+            RoomType? type = null;
+
+            if (!string.IsNullOrWhiteSpace(filters.Type))
+            {
+                if (Enum.TryParse<RoomType>(filters.Type, true, out var parsedType))
+                {
+                    type = parsedType;
+                }
+                else
+                {
+                    throw new ArgumentException("Неверный тип номера отеля.");
+                }
+            }
+            var rooms = await _roomRepository.GetAllHotelsWithFiltersAsync(
+                hotelId,
+                filters.Limit,
+                filters.Offset,
+                type,
+                filters.MinPrice,
+                filters.MaxPrice,
+                filters.Capacity,
+                filters.SortBy,
+                filters.Order,
+                ct);
             return rooms.Select(r => _mapper.Map<RoomDTO>(r));
+        }
+
+        public async Task<int> GetTotalPagesAsync(int hotelId, RoomFiltersModel filters, CancellationToken ct = default)
+        {
+            RoomType? type = null;
+
+            if (!string.IsNullOrWhiteSpace(filters.Type))
+            {
+                if (Enum.TryParse<RoomType>(filters.Type, true, out var parsedType))
+                {
+                    type = parsedType;
+                }
+                else
+                {
+                    throw new ArgumentException("Неверный тип номера отеля.");
+                }
+            }
+
+            return await _roomRepository.GetRoomsTotalCountAsync(
+                hotelId,
+                type,
+                filters.MinPrice,
+                filters.MaxPrice,
+                filters.Capacity,
+                ct);
         }
         public async Task<RoomDTO> GetRoomByIdAsync(int roomId, CancellationToken ct = default)
         {
@@ -158,9 +211,8 @@ namespace HotelsBooking.BLL.Services
 
             roomItem.PricePerNight = updatingRoom.PricePerNight;
             roomItem.Capacity = updatingRoom.Capacity;
-            roomItem.Type = updatingRoom.Type;
+            roomItem.Type = Enum.Parse<RoomType>(updatingRoom.Type, true);
             _roomRepository.Update(roomItem);
-
             await _roomRepository.SaveChangesAsync(ct);
         }
     }

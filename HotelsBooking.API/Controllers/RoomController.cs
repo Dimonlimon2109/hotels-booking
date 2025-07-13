@@ -4,6 +4,8 @@ using HotelsBooking.API.Constants;
 using HotelsBooking.API.Models;
 using HotelsBooking.API.ViewModels;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
+using HotelsBooking.BLL.Models;
 using HotelsBooking.BLL.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,19 +13,20 @@ using System.Security.Claims;
 
 namespace HotelsBooking.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/rooms")]
     [ApiController]
     public class RoomController : ControllerBase
     {
-        private readonly RoomService _roomService;
+        private readonly IRoomService _roomService;
         private readonly IMapper _mapper;
 
-        public RoomController(RoomService roomService, IMapper mapper)
+        public RoomController(IRoomService roomService, IMapper mapper)
         {
             _roomService = roomService;
             _mapper = mapper;
         }
 
+        [Authorize(Roles = Roles.HotelOwner)]
         [HttpPost]
         public async Task<IActionResult> Create(CreateRoomModel creatingRoom, CancellationToken ct = default)
         {
@@ -31,14 +34,6 @@ namespace HotelsBooking.API.Controllers
             var createRoomDTO = _mapper.Map<CreateRoomDTO>(creatingRoom);
             var RoomDTO = await _roomService.CreateRoomAsync(userEmail, createRoomDTO, ct);
             return Created();
-        }
-
-        [HttpGet("hotel/{hotelId:int}")]
-        public async Task<IActionResult> GetAll(int hotelId, CancellationToken ct = default) //rename
-        {
-            var roomsDTO = await _roomService.GetRoomsByHotelIdAsync(hotelId);
-            var roomsViewModel = roomsDTO.Select(hd => _mapper.Map<RoomViewModel>(hd));
-            return Ok(roomsViewModel);
         }
 
         [HttpGet("{roomId:int}")]

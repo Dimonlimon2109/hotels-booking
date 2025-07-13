@@ -14,5 +14,7 @@ namespace HotelsBooking.DAL.Entities
         public DateTime? RefreshTokenExpiresAt { get; set; }
         public ICollection<Hotel> Hotels { get; set; }
         public ICollection<Review> Reviews { get; set; }
+        public ICollection<Booking> Bookings { get; set; }
+
     }
 }

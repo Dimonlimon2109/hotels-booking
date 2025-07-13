@@ -2,7 +2,7 @@
 
 namespace HotelsBooking.API.Adapters
 {
-    public class WebHostAdapter : IImagePath
+    public class WebHostAdapter : IRootPath
     {
         private readonly IWebHostEnvironment _environment;
         public WebHostAdapter(IWebHostEnvironment environment)

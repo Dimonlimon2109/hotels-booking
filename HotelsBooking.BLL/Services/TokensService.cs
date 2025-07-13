@@ -1,4 +1,5 @@
 ﻿
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Models;
 using HotelsBooking.DAL.Entities;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +11,7 @@ using System.Text;
 
 namespace HotelsBooking.BLL.Services
 {
-    public class TokensService
+    public class TokensService : ITokensService
     {
         private readonly IConfiguration _configuration;
         private readonly TimeSpan _tokenLifetime = TimeSpan.FromMinutes(30);

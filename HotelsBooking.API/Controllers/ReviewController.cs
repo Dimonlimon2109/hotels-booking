@@ -3,6 +3,7 @@ using HotelsBooking.API.Constants;
 using HotelsBooking.API.Models;
 using HotelsBooking.API.ViewModels;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,20 +11,20 @@ using System.Security.Claims;
 
 namespace HotelsBooking.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/reviews")]
     [ApiController]
     public class ReviewController : ControllerBase
     {
-        private readonly ReviewService _reviewService;
+        private readonly IReviewService _reviewService;
         private readonly IMapper _mapper;
 
-        public ReviewController(ReviewService reviewService, IMapper mapper)
+        public ReviewController(IReviewService reviewService, IMapper mapper)
         {
             _reviewService = reviewService;
             _mapper = mapper;
         }
 
-        [HttpGet("hotel/{hotelId:int}")]
+        [HttpGet("hotels/{hotelId:int}")]
         public async Task<IActionResult> GetByHotel(int hotelId, CancellationToken ct = default)
         {
             var reviewsDTO = await _reviewService.GetAllReviewsByHotelAsync(hotelId, ct);

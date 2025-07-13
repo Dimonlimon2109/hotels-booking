@@ -2,13 +2,13 @@
 using AutoMapper;
 using FluentValidation;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.DAL.Entities;
 using HotelsBooking.DAL.Interfaces;
-using HotelsBooking.DAL.Repositories;
 
 namespace HotelsBooking.BLL.Services
 {
-    public class AmenityService
+    public class AmenityService : IAmenityService
     {
         private readonly IAmenityRepository _amenityRepository;
         private readonly IMapper _mapper;
@@ -33,7 +33,7 @@ namespace HotelsBooking.BLL.Services
         {
             var validationResult = await _creatingAmenityValidator.ValidateAsync(creatingAmenity, ct);
 
-            if(!validationResult.IsValid)
+            if (!validationResult.IsValid)
             {
                 throw new ValidationException(validationResult.Errors);
             }

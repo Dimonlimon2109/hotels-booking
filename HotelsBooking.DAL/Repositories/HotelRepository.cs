@@ -8,18 +8,16 @@ using NetTopologySuite;
 
 namespace HotelsBooking.DAL.Repositories
 {
-    public class HotelRepository : Repository<Hotel>, IHotelRepository
+    public class HotelRepository(ApplicationContext context) : Repository<Hotel>(context), IHotelRepository
     {
-        public HotelRepository(ApplicationContext context) : base(context) { }
-
         public async Task<Hotel?> GetHotelByIdWithOwnerAsync(int id, CancellationToken ct = default)
         {
-            return await _dbSet.Include(h => h.Owner).AsNoTracking().FirstOrDefaultAsync(h => h.Id == id);
+            return await _dbSet.Include(h => h.Owner).AsNoTracking().FirstOrDefaultAsync(h => h.Id == id, ct);
         }
 
         public async Task<Hotel?> GetHotelAsync(int id, CancellationToken ct = default)
         {
-            return await _dbSet.Include(h => h.Photos).Include(h => h.Amenities).AsNoTracking().FirstOrDefaultAsync(h => h.Id == id);
+            return await _dbSet.Include(h => h.Photos).Include(h => h.Amenities).AsNoTracking().FirstOrDefaultAsync(h => h.Id == id, ct);
         }
 
         public async Task<IEnumerable<Hotel>> GetOwnerHotelsAsync(int id, CancellationToken ct = default)
@@ -29,7 +27,7 @@ namespace HotelsBooking.DAL.Repositories
 
         public async Task<IEnumerable<Hotel>> GetHotelsAsync(CancellationToken ct = default)
         {
-            return await _dbSet.Include(h => h.Photos).Include(h => h.Amenities).AsNoTracking().ToListAsync();
+            return await _dbSet.Include(h => h.Photos).Include(h => h.Amenities).AsNoTracking().ToListAsync(ct);
         }
 
         public async Task<IEnumerable<Hotel>> GetAllHotelsWithFiltersAsync(

@@ -4,6 +4,7 @@ using HotelsBooking.API.Constants;
 using HotelsBooking.API.Models;
 using HotelsBooking.API.ViewModels;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Models;
 using HotelsBooking.BLL.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -16,15 +17,17 @@ namespace HotelsBooking.API.Controllers
     [ApiController]
     public class HotelController : ControllerBase
     {
-        private readonly HotelService _hotelService;
-        private readonly RoomService _roomService;
+        private readonly IHotelService _hotelService;
+        private readonly IRoomService _roomService;
         private readonly IMapper _mapper;
 
         public HotelController(
-            HotelService hotelService,
+            IHotelService hotelService,
+            IRoomService roomService,
             IMapper mapper)
         {
             _hotelService = hotelService;
+            _roomService = roomService;
             _mapper = mapper;
         }
 
@@ -47,21 +50,29 @@ namespace HotelsBooking.API.Controllers
             var hotelsViewModel = hotelsDTO.Select(h => _mapper.Map<HotelViewModel>(h));
             return Ok(new
             {
-                hotelsViewModel,
+                hotels = hotelsViewModel,
                 totalCount
             });
         }
 
         [HttpGet("{hotelId:int}/rooms")]
-        public async Task<IActionResult> GetAllRoomsByHotelId(int hotelId, CancellationToken ct = default) //rename
+        public async Task<IActionResult> GetAllRoomsByHotelId(
+            int hotelId,
+            [FromQuery] RoomFiltersModel filters,
+            CancellationToken ct = default)
         {
-            var roomsDTO = await _roomService.GetRoomsByHotelIdAsync(hotelId);
+            var roomsDTO = await _roomService.GetRoomsByHotelIdAsync(hotelId, filters, ct);
+            var totalCount = await _roomService.GetTotalPagesAsync(hotelId, filters, ct);
             var roomsViewModel = roomsDTO.Select(hd => _mapper.Map<RoomViewModel>(hd));
-            return Ok(roomsViewModel);
+            return Ok(new
+            {
+                rooms = roomsViewModel,
+                totalCount,
+            });
         }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetSingleHotel(int id, CancellationToken ct)
+        public async Task<IActionResult> GetById(int id, CancellationToken ct)
         {
             var hotelDTO = await _hotelService.GetHotelAsync(id, ct);
 
