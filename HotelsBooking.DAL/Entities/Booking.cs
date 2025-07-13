@@ -14,7 +14,7 @@ namespace HotelsBooking.DAL.Entities
         public int Children { get; set; }
         public decimal TotalPrice { get; set; }
         public BookingStatus Status { get; set; }
-        public string? PaymentIntentId { get; set; }
+        public string? ChargeId { get; set; }
         public string? CancellationReason { get; set; }
         public string? CancellationJobId { get; set; }
         public User User { get; set; }

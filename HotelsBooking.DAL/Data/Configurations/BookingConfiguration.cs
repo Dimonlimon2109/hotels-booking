@@ -41,7 +41,7 @@ namespace HotelsBooking.DAL.Data.Configurations
                    .HasForeignKey(b => b.UserId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Property(b => b.PaymentIntentId)
+            builder.Property(b => b.ChargeId)
                     .HasMaxLength(100)
                     .IsRequired(false);
 

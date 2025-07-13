@@ -1,5 +1,6 @@
 ﻿
 using HotelsBooking.BLL.Interfaces;
+using HotelsBooking.BLL.Models;
 using Microsoft.Extensions.Configuration;
 using Stripe;
 using Stripe.Checkout;
@@ -47,15 +48,15 @@ namespace HotelsBooking.BLL.Services
             {
                 { "bookingId", bookingId }
             },
-                SuccessUrl = "https://yourdomain.com/payment/success?bookingId=" + bookingId,
-                CancelUrl = "https://yourdomain.com/payment/cancel"
+                SuccessUrl = "https://www.success.com/",
+                CancelUrl = "https://www.cancel.com/"
             };
 
             var service = new SessionService();
             return await service.CreateAsync(options, requestOptions: null, ct);
         }
 
-        public int HandleBookingWebhook(string json, string stripeSignature)
+        public async Task<CompletedPaymentInfoModel> HandleBookingWebhook(string json, string stripeSignature)
         {
             try
             {
@@ -64,9 +65,12 @@ namespace HotelsBooking.BLL.Services
                 if (stripeEvent.Type == "checkout.session.completed")
                 {
                     var session = stripeEvent.Data.Object as Session;
-                    if (int.TryParse(session?.Metadata?["bookingId"], out var result))
+                    var paymentIntentService = new PaymentIntentService();
+                    var paymentIntent = await paymentIntentService.GetAsync(session.PaymentIntentId);
+
+                    if (int.TryParse(session?.Metadata?["bookingId"], out var bookingId))
                     {
-                        return result;
+                        return new CompletedPaymentInfoModel(bookingId, paymentIntent.LatestChargeId);
                     }
 
                     throw new InvalidOperationException("bookingId не найден или невалидный");
@@ -80,13 +84,13 @@ namespace HotelsBooking.BLL.Services
             }
         }
 
-        public async Task RefundPaymentAsync(string paymentIntentId, CancellationToken ct = default)
+        public async Task RefundPaymentAsync(string chargeId, CancellationToken ct = default)
         {
             var service = new RefundService();
 
             var options = new RefundCreateOptions
             {
-                PaymentIntent = paymentIntentId
+                Charge = chargeId,
             };
 
             await service.CreateAsync(options, cancellationToken: ct);

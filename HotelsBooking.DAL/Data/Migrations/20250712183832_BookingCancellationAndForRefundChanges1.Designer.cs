@@ -3,6 +3,7 @@ using System;
 using HotelsBooking.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HotelsBooking.DAL.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20250712183832_BookingCancellationAndForRefundChanges1")]
+    partial class BookingCancellationAndForRefundChanges1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,10 +80,6 @@ namespace HotelsBooking.DAL.Data.Migrations
                         .IsUnicode(true)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<string>("ChargeId")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
                     b.Property<DateTime>("CheckInDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -89,6 +88,10 @@ namespace HotelsBooking.DAL.Data.Migrations
 
                     b.Property<int>("Children")
                         .HasColumnType("integer");
+
+                    b.Property<string>("PaymentIntentId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");

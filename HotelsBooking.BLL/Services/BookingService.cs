@@ -128,7 +128,7 @@ namespace HotelsBooking.BLL.Services
                 if (DateTime.UtcNow >= booking.CheckInDate)
                     throw new InvalidOperationException("Нельзя отменить бронирование после даты заезда");
 
-                await _stripeService.RefundPaymentAsync(booking.PaymentIntentId, ct);
+                await _stripeService.RefundPaymentAsync(booking.ChargeId, ct);
             }
 
             booking.CancellationReason = cancellationReason;
@@ -148,9 +148,9 @@ namespace HotelsBooking.BLL.Services
         public async Task ConfirmBookingAsync(string json, string signature, CancellationToken ct = default)
         {
 
-            var bookingId = _stripeService.HandleBookingWebhook(json, signature);
+            var paymentInfo = await _stripeService.HandleBookingWebhook(json, signature);
 
-            var booking = await _bookingRepository.GetByIdAsync(bookingId, ct)
+            var booking = await _bookingRepository.GetByIdAsync(paymentInfo.BookingId, ct)
                 ?? throw new NullReferenceException("Бронирование не найдено");
 
             if (!string.IsNullOrEmpty(booking.CancellationJobId))
@@ -159,6 +159,7 @@ namespace HotelsBooking.BLL.Services
             }
 
             booking.CancellationJobId = null;
+            booking.ChargeId = paymentInfo.ChargeId;
             booking.Status = BookingStatus.Confirmed;
             _bookingRepository.Update(booking);
             await _bookingRepository.SaveChangesAsync(ct);

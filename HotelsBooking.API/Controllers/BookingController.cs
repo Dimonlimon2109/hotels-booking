@@ -36,7 +36,10 @@ namespace HotelsBooking.API.Controllers
             var creatingBookingDTO = _mapper.Map<CreateBookingDTO>(creatingBooking);
 
             var checkoutUrl = await _bookingService.CreateBookingAsync(creatingBookingDTO, userEmail, ct);
-            return Ok(checkoutUrl);
+            return Ok(new
+            {
+                checkoutUrl
+            });
         }
 
         [Authorize]
@@ -56,7 +59,7 @@ namespace HotelsBooking.API.Controllers
         }
 
         [Authorize(Roles = $"{Roles.HotelOwner},{Roles.Client}")]
-        [HttpPut("{bookingId:int}")]
+        [HttpPut("{bookingId:int}/cancel")]
         public async Task<IActionResult> CancelBooking(int bookingId, string cancellationReason, CancellationToken ct = default)
         {
 
@@ -72,7 +75,7 @@ namespace HotelsBooking.API.Controllers
             CancellationToken ct)
         {
             var isAvailable = await _bookingService.IsRoomAvailableAsync(roomId, bookingDates, ct);
-            return Ok(new { isAvailable });
+            return Ok(new {isAvailable });
         }
 
         [HttpPost("payment/webhook")]
