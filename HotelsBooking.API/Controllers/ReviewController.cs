@@ -32,7 +32,7 @@ namespace HotelsBooking.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = Policies.Client)]
+        [Authorize(Roles = Roles.Client)]
         public async Task<IActionResult> Create(CreateReviewModel creatingReview, CancellationToken ct = default)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
@@ -41,7 +41,7 @@ namespace HotelsBooking.API.Controllers
             return Created();
         }
 
-        [Authorize(Policy = Policies.Client)]
+        [Authorize(Roles = Roles.Client)]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id, CancellationToken ct = default)
         {
@@ -50,7 +50,7 @@ namespace HotelsBooking.API.Controllers
             return NoContent();
         }
 
-        [Authorize(Policy = Policies.Client)]
+        [Authorize(Roles = Roles.Client)]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, UpdateReviewModel updatingReview, CancellationToken ct = default)
         {

@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
 using FluentValidation;
+using FluentValidation.Validators;
 using Hangfire;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.BLL.Interfaces;
@@ -185,13 +186,28 @@ namespace HotelsBooking.BLL.Services
         public async Task CancelUnpaidBookingAsync(int bookingId, CancellationToken ct = default)
         {
             var booking = await _bookingRepository.GetByIdAsync(bookingId, ct)
-                ?? throw new Exception("Бронирование не найдено");
+                ?? throw new NullReferenceException("Бронирование не найдено");
             if (booking.Status != BookingStatus.Pending || booking.Status == BookingStatus.Cancelled)
                 return;
 
             booking.Status = BookingStatus.Cancelled;
             _bookingRepository.Update(booking);
             await _bookingRepository.SaveChangesAsync(ct);
+        }
+
+        public async Task<IEnumerable<BookingDTO>> GetBookingsByRoomAsync(int roomId, string userEmail, CancellationToken ct = default)
+        {
+            var room = await _roomRepository.GetRoomWithHotelAndOwnerAsync(roomId, ct)
+                ?? throw new NullReferenceException("Номер отеля не найден");
+
+            if(userEmail != room.Hotel.Owner.Email)
+            {
+                throw new SecurityException("Недостаточно прав");
+            }
+
+            var bookings = await _bookingRepository.GetByRoomIdAsync(roomId, ct);
+
+            return bookings.Select(b => _mapper.Map<BookingDTO>(b));
         }
     }
 }

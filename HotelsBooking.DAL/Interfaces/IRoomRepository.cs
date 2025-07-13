@@ -9,6 +9,8 @@ namespace HotelsBooking.DAL.Interfaces
         Task<IEnumerable<Room>> GetRoomsAsync(int hotelId, CancellationToken ct = default);
         Task<Room?> GetRoomAsync(int roomId, CancellationToken ct = default);
 
+        Task<Room?> GetRoomWithHotelAndOwnerAsync(int roomId, CancellationToken ct = default);
+
         Task<IEnumerable<Room>> GetAllHotelsWithFiltersAsync(
             int hotelId,
             int limit,

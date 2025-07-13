@@ -49,5 +49,10 @@ namespace HotelsBooking.DAL.Repositories
             ), ct);
         }
 
+        public async Task<IEnumerable<Booking>> GetByRoomIdAsync(int roomId, CancellationToken ct = default)
+        {
+            return await _dbSet.Where(b => b.RoomId == roomId).AsNoTracking().ToListAsync();
+        }
+
     }
 }

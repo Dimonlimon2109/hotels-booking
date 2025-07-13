@@ -18,5 +18,6 @@ namespace HotelsBooking.DAL.Interfaces
             DateTime checkOutDate,
             CancellationToken ct = default
             );
+        Task<IEnumerable<Booking>> GetByRoomIdAsync(int roomId, CancellationToken ct = default);
         }
 }
