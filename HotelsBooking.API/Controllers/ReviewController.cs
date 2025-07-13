@@ -3,6 +3,7 @@ using HotelsBooking.API.Constants;
 using HotelsBooking.API.Models;
 using HotelsBooking.API.ViewModels;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +15,10 @@ namespace HotelsBooking.API.Controllers
     [ApiController]
     public class ReviewController : ControllerBase
     {
-        private readonly ReviewService _reviewService;
+        private readonly IReviewService _reviewService;
         private readonly IMapper _mapper;
 
-        public ReviewController(ReviewService reviewService, IMapper mapper)
+        public ReviewController(IReviewService reviewService, IMapper mapper)
         {
             _reviewService = reviewService;
             _mapper = mapper;

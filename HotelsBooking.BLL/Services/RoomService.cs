@@ -13,13 +13,13 @@ using System.Security;
 
 namespace HotelsBooking.BLL.Services
 {
-    public class RoomService
+    public class RoomService : IRoomService
     {
         private readonly IUserRepository _userRepository;
         private readonly IHotelRepository _hotelRepository;
         private readonly IRoomRepository _roomRepository;
         private readonly IRoomPhotoRepository _roomPhotoRepository;
-        private readonly ImageService _imageService;
+        private readonly IImageService _imageService;
         private readonly IMapper _mapper;
         private readonly IValidator<CreateRoomDTO> _creatingRoomValidator;
         private readonly IValidator<UpdateRoomDTO> _updatingRoomValidator;
@@ -29,7 +29,7 @@ namespace HotelsBooking.BLL.Services
             IHotelRepository hotelRepository,
             IRoomRepository roomRepository,
             IRoomPhotoRepository roomPhotoRepository,
-            ImageService imageService,
+            IImageService imageService,
             IMapper mapper,
             IValidator<CreateRoomDTO> creatingRoomValidator,
             IValidator<UpdateRoomDTO> updatingRoomValidator
@@ -55,7 +55,7 @@ namespace HotelsBooking.BLL.Services
             var user = await _userRepository.GetByEmailAsync(userEmail);
             var hotel = await _hotelRepository.GetByIdAsync(creatingRoom.HotelId);
 
-            if(hotel == null)
+            if (hotel == null)
             {
                 throw new NullReferenceException("Отель не найден");
             }

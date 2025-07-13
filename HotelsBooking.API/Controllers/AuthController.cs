@@ -2,6 +2,7 @@
 using HotelsBooking.API.Constants;
 using HotelsBooking.API.Models;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,10 @@ namespace HotelsBooking.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
         private readonly IMapper _mapper;
 
-        public AuthController(AuthService authService, IMapper mapper)
+        public AuthController(IAuthService authService, IMapper mapper)
         {
             _authService = authService;
             _mapper = mapper;

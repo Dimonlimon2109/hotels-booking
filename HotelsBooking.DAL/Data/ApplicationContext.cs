@@ -12,9 +12,10 @@ namespace HotelsBooking.DAL.Data
         public DbSet<PhotoBase> Photos { get; set; }
         public DbSet<HotelPhoto> HotelPhotos { get; set; }
         public DbSet<Room> Rooms { get; set; }
-        public DbSet<RoomPhoto> roomPhotos { get; set; }
+        public DbSet<RoomPhoto> RoomPhotos { get; set; }
         public DbSet<Amenity> Amenities { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -28,6 +29,7 @@ namespace HotelsBooking.DAL.Data
             modelBuilder.ApplyConfiguration(new RoomPhotoConfiguration());
             modelBuilder.ApplyConfiguration(new AmenityConfiguration());
             modelBuilder.ApplyConfiguration(new ReviewConfiguration());
+            modelBuilder.ApplyConfiguration(new BookingConfiguration());
         }
     }
 }

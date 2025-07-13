@@ -57,6 +57,61 @@ namespace HotelsBooking.DAL.Data.Migrations
                     b.ToTable("Amenities");
                 });
 
+            modelBuilder.Entity("HotelsBooking.DAL.Entities.Booking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Adults")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CancellationJobId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(500)
+                        .IsUnicode(true)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ChargeId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CheckInDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CheckOutDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Children")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Bookings");
+                });
+
             modelBuilder.Entity("HotelsBooking.DAL.Entities.Hotel", b =>
                 {
                     b.Property<int>("Id")
@@ -290,6 +345,25 @@ namespace HotelsBooking.DAL.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("HotelsBooking.DAL.Entities.Booking", b =>
+                {
+                    b.HasOne("HotelsBooking.DAL.Entities.Room", "Room")
+                        .WithMany("Bookings")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HotelsBooking.DAL.Entities.User", "User")
+                        .WithMany("Bookings")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HotelsBooking.DAL.Entities.Hotel", b =>
                 {
                     b.HasOne("HotelsBooking.DAL.Entities.User", "Owner")
@@ -364,11 +438,15 @@ namespace HotelsBooking.DAL.Data.Migrations
 
             modelBuilder.Entity("HotelsBooking.DAL.Entities.Room", b =>
                 {
+                    b.Navigation("Bookings");
+
                     b.Navigation("Photos");
                 });
 
             modelBuilder.Entity("HotelsBooking.DAL.Entities.User", b =>
                 {
+                    b.Navigation("Bookings");
+
                     b.Navigation("Hotels");
 
                     b.Navigation("Reviews");

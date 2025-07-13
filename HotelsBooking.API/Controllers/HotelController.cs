@@ -4,6 +4,7 @@ using HotelsBooking.API.Constants;
 using HotelsBooking.API.Models;
 using HotelsBooking.API.ViewModels;
 using HotelsBooking.BLL.DTO;
+using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Models;
 using HotelsBooking.BLL.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -16,13 +17,13 @@ namespace HotelsBooking.API.Controllers
     [ApiController]
     public class HotelController : ControllerBase
     {
-        private readonly HotelService _hotelService;
-        private readonly RoomService _roomService;
+        private readonly IHotelService _hotelService;
+        private readonly IRoomService _roomService;
         private readonly IMapper _mapper;
 
         public HotelController(
-            HotelService hotelService,
-            RoomService roomService,
+            IHotelService hotelService,
+            IRoomService roomService,
             IMapper mapper)
         {
             _hotelService = hotelService;
