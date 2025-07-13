@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using HotelsBooking.API.Constants;
 using HotelsBooking.API.Models;
 using HotelsBooking.API.ViewModels;
 using HotelsBooking.BLL.DTO;
 using HotelsBooking.BLL.Interfaces;
 using HotelsBooking.BLL.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelsBooking.API.Controllers
@@ -35,6 +37,7 @@ namespace HotelsBooking.API.Controllers
             return Ok(_mapper.Map<AmenityViewModel>(amenityDTO));
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPost]
         public async Task<IActionResult> Create(CreateAmenityModel creatingAmenity, CancellationToken ct = default)
         {
@@ -43,6 +46,7 @@ namespace HotelsBooking.API.Controllers
             return Created();
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id, CancellationToken ct = default)
         {
@@ -50,6 +54,7 @@ namespace HotelsBooking.API.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, UpdateAmenityModel updatingAmenity, CancellationToken ct = default)
         {

@@ -24,7 +24,7 @@ namespace HotelsBooking.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("hotel/{hotelId:int}")]
+        [HttpGet("hotels/{hotelId:int}")]
         public async Task<IActionResult> GetByHotel(int hotelId, CancellationToken ct = default)
         {
             var reviewsDTO = await _reviewService.GetAllReviewsByHotelAsync(hotelId, ct);

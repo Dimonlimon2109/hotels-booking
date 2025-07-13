@@ -56,7 +56,7 @@ namespace HotelsBooking.API.Controllers
         }
 
         [HttpGet("{hotelId:int}/rooms")]
-        public async Task<IActionResult> GetAllByHotelId(
+        public async Task<IActionResult> GetAllRoomsByHotelId(
             int hotelId,
             [FromQuery] RoomFiltersModel filters,
             CancellationToken ct = default)
@@ -72,7 +72,7 @@ namespace HotelsBooking.API.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetSingleHotel(int id, CancellationToken ct)
+        public async Task<IActionResult> GetById(int id, CancellationToken ct)
         {
             var hotelDTO = await _hotelService.GetHotelAsync(id, ct);
 
