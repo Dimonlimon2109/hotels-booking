@@ -2,6 +2,8 @@
 using FluentValidation.Results;
 using Microsoft.IdentityModel.Tokens;
 using System.Net;
+using System.Security;
+using Stripe;
 
 namespace HotelsBooking.API.Middlewares
 {
@@ -41,6 +43,26 @@ namespace HotelsBooking.API.Middlewares
             catch (SecurityTokenException ex)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                await HandleExceptionAsync(context, ex.Message);
+            }
+            catch (SecurityException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                await HandleExceptionAsync(context, ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HandleExceptionAsync(context, ex.Message);
+            }
+            catch (NotSupportedException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotImplemented;
+                await HandleExceptionAsync(context, ex.Message);
+            }
+            catch (StripeException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 await HandleExceptionAsync(context, ex.Message);
             }
             catch (OperationCanceledException ex)
