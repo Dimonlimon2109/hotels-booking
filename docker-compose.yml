@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:17-3.4
+    restart: always
+    environment:
+      POSTGRES_DB: HotelsBookingDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1111
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  migrate:
+    build:
+      context: .
+      dockerfile: HotelsBooking.API/Dockerfile
+      target: build
+    working_dir: /src/HotelsBooking.API
+    entrypoint: ["dotnet", "ef", "database", "update", "--project", "../HotelsBooking.DAL/HotelsBooking.DAL.csproj", "--startup-project", ".", "--context", "ApplicationContext"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__ApplicationContext: Host=db;Port=5432;Database=HotelsBookingDB;Username=postgres;Password=1111;
+    depends_on:
+      - db
+
+  hotelsbooking.api:
+    build:
+      context: .
+      dockerfile: HotelsBooking.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__ApplicationContext: Host=db;Port=5432;Database=HotelsBookingDB;Username=postgres;Password=1111;
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      - db
+      - migrate
+    entrypoint: ["dotnet", "HotelsBooking.API.dll"]
+
+volumes:
+  db_data:

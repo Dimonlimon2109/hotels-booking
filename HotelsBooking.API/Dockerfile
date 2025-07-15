@@ -2,17 +2,26 @@
 
 # Этот этап используется при запуске из VS в быстром режиме (по умолчанию для конфигурации отладки)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
+# Установка netcat-openbsd до смены пользователя
+RUN apt-get update && apt-get install -y netcat-openbsd
+USER $APP_UID
 
 
 # Этот этап используется для сборки проекта службы
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+# Установка netcat-openbsd для слоя build (SDK)
+RUN apt-get update && apt-get install -y netcat-openbsd
+# Установка dotnet-ef для миграций
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="$PATH:/root/.dotnet/tools"
 COPY ["HotelsBooking.API/HotelsBooking.API.csproj", "HotelsBooking.API/"]
+COPY ["HotelsBooking.BLL/HotelsBooking.BLL.csproj", "HotelsBooking.BLL/"]
+COPY ["HotelsBooking.DAL/HotelsBooking.DAL.csproj", "HotelsBooking.DAL/"]
 RUN dotnet restore "./HotelsBooking.API/HotelsBooking.API.csproj"
 COPY . .
 WORKDIR "/src/HotelsBooking.API"
